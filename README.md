@@ -7,11 +7,13 @@
 
 ## Course Overview
 
-| Attribute | Details |
-|-----------|---------|| **Duration** | 13 Days (40 Hours) |
-| **Mode** | Virtual Instructor-Led Training + Guided Labs |
+| **Attribute**     | **Details**                                           |
+| ----------------- | ----------------------------------------------------- |
+| **Duration**      | 13 Days (40 Hours)                                    |
+| **Mode**          | Virtual Instructor-Led Training + Guided Labs         |
 | **Certification** | Databricks Certified Associate Platform Administrator |
-| **Version** | 2.0 (January 2026) |
+| **Version**       | 2.0 (January 2026)                                    |
+
 
 ### Daily Duration Pattern
 - **Days 1–11**: 3 hours/day → 33 hours
