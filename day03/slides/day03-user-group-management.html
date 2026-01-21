@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: User, Group & Role Management | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .slide-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; color: #ffffff; }
+        .slide { display: none; flex-direction: column; justify-content: flex-start; padding: 60px 80px; height: 100%; animation: fadeIn 0.5s ease-in-out; }
+        .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .slide-subtitle { font-size: 1.5em; color: #888; margin-bottom: 30px; }
+        .bullet-list { list-style: none; padding-left: 0; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.5s ease; line-height: 1.5; }
+        .bullet-list li.visible { opacity: 1; transform: translateX(0); }
+        .bullet-list li::before { content: "▸"; color: #FF3621; font-size: 1.2em; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #cccccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; font-weight: 600; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; line-height: 1.6; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); transition: width 0.3s ease; }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; font-size: 1em; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; font-size: 0.9em; color: #444; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .title-slide .slide-subtitle { font-size: 1.8em; color: #aaa; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; font-size: 1.2em; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; font-weight: 600; }
+        td { font-size: 1.1em; }
+        tr:hover { background: rgba(255, 255, 255, 0.05); }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; font-size: 1.2em; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 1em; }
+        .info-card li:last-child { border-bottom: none; }
+        .speaker-notes { display: none; position: fixed; bottom: 60px; left: 30px; right: 30px; background: rgba(0, 0, 0, 0.9); border: 1px solid #FF3621; border-radius: 8px; padding: 20px; font-size: 0.9em; color: #ccc; max-height: 200px; overflow-y: auto; }
+        .speaker-notes.visible { display: block; }
+        .speaker-notes h4 { color: #FF6B35; margin-bottom: 10px; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { color: #ffc107; }
+        .success-box { background: rgba(76, 175, 80, 0.1); border-left: 4px solid #4caf50; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { color: #4caf50; }
+        .identity-flow { display: flex; align-items: center; justify-content: center; gap: 30px; margin: 30px 0; }
+        .identity-box { background: rgba(255, 255, 255, 0.05); border: 2px solid #FF3621; border-radius: 12px; padding: 20px 30px; text-align: center; }
+        .identity-box h4 { color: #FF6B35; margin-bottom: 10px; }
+        .arrow { font-size: 2em; color: #FF3621; }
+        .permission-matrix { margin-top: 20px; }
+        .permission-matrix td:first-child { font-weight: 600; color: #FF6B35; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 3 of 13</div>
+            <h1 class="slide-title">User, Group & Role Management</h1>
+            <p class="slide-subtitle">Databricks Platform Administration Training</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours | Virtual Instructor-Led</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>User, Group, and Role Concepts (45 min)</li>
+                <li>Admin Privilege Models (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Best Practices for Access Management (30 min)</li>
+                <li>Hands-on Lab: Create Users & Groups (60 min)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Learning Objectives -->
+        <div class="slide">
+            <h1 class="slide-title">Learning Objectives</h1>
+            <ul class="bullet-list">
+                <li>Understand user identity types in Databricks</li>
+                <li>Create and manage groups effectively</li>
+                <li>Apply the correct admin privilege model</li>
+                <li>Implement access management best practices</li>
+                <li>Configure entitlements appropriately</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Section Header -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 1</div>
+            <h1 class="slide-title">User, Group & Role Concepts</h1>
+            <p class="slide-subtitle">Understanding identity in Databricks</p>
+        </div>
+
+        <!-- Slide 5: Identity Types -->
+        <div class="slide">
+            <h1 class="slide-title">Identity Types in Databricks</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>👤 Users</h4>
+                    <ul>
+                        <li>Human identities</li>
+                        <li>Email-based</li>
+                        <li>Interactive login</li>
+                        <li>Personal tokens</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>👥 Groups</h4>
+                    <ul>
+                        <li>Collections of identities</li>
+                        <li>Permission targets</li>
+                        <li>Nested groups supported</li>
+                        <li>Synced from IdP</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>🤖 Service Principals</h4>
+                    <ul>
+                        <li>Non-human identities</li>
+                        <li>Automation & CI/CD</li>
+                        <li>OAuth authentication</li>
+                        <li>No interactive login</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: User Management -->
+        <div class="slide">
+            <h1 class="slide-title">User Management</h1>
+            <ul class="bullet-list">
+                <li><strong>Manual Creation</strong> – Add users one by one in Admin Console</li>
+                <li><strong>SCIM Provisioning</strong> – Automatic sync from Identity Provider</li>
+                <li><strong>Just-in-Time (JIT)</strong> – Users created on first SSO login</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Recommendation:</strong> Use SCIM for enterprise environments. Manual management doesn't scale beyond small teams.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Account vs Workspace Users -->
+        <div class="slide">
+            <h1 class="slide-title">Account vs Workspace Users</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Account-Level Users</div>
+                    <ul class="bullet-list">
+                        <li>Exist in the Databricks account</li>
+                        <li>Can be assigned to multiple workspaces</li>
+                        <li>Managed via Account Console or SCIM</li>
+                        <li>Single source of truth</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Workspace-Level Assignment</div>
+                    <ul class="bullet-list">
+                        <li>Users must be assigned to workspace</li>
+                        <li>Entitlements set per workspace</li>
+                        <li>Can have different roles per workspace</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="identity-flow" style="margin-top: 30px;">
+                <div class="identity-box"><h4>Account User</h4><p>john@company.com</p></div>
+                <div class="arrow">→</div>
+                <div class="identity-box"><h4>Dev Workspace</h4><p>Admin</p></div>
+                <div class="identity-box"><h4>Prod Workspace</h4><p>User</p></div>
+            </div>
+        </div>
+
+        <!-- Slide 8: User Entitlements -->
+        <div class="slide">
+            <h1 class="slide-title">User Entitlements</h1>
+            <table>
+                <tr>
+                    <th>Entitlement</th>
+                    <th>Description</th>
+                    <th>Default</th>
+                </tr>
+                <tr>
+                    <td>Workspace access</td>
+                    <td>Can log into the workspace</td>
+                    <td>✓ Enabled</td>
+                </tr>
+                <tr>
+                    <td>Databricks SQL access</td>
+                    <td>Can use SQL Editor and dashboards</td>
+                    <td>✓ Enabled</td>
+                </tr>
+                <tr>
+                    <td>Allow cluster creation</td>
+                    <td>Can create all-purpose clusters</td>
+                    <td>Varies</td>
+                </tr>
+                <tr>
+                    <td>Allow instance pool creation</td>
+                    <td>Can create instance pools</td>
+                    <td>✗ Disabled</td>
+                </tr>
+                <tr>
+                    <td>Allow unrestricted cluster creation</td>
+                    <td>Can create clusters without policy</td>
+                    <td>✗ Disabled</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 9: Groups Deep Dive -->
+        <div class="slide">
+            <h1 class="slide-title">Groups Deep Dive</h1>
+            <ul class="bullet-list">
+                <li><strong>Purpose:</strong> Simplify permission management at scale</li>
+                <li><strong>Built-in Groups:</strong>
+                    <ul class="bullet-list">
+                        <li class="sub-item"><code>admins</code> – Workspace administrators</li>
+                        <li class="sub-item"><code>users</code> – All workspace users (auto-membership)</li>
+                    </ul>
+                </li>
+                <li><strong>Custom Groups:</strong> Create for teams, projects, or roles</li>
+                <li><strong>Nested Groups:</strong> Groups can contain other groups</li>
+            </ul>
+        </div>
+
+        <!-- Slide 10: Group Best Practices -->
+        <div class="slide">
+            <h1 class="slide-title">Group Best Practices</h1>
+            <div class="two-column">
+                <div class="success-box">
+                    <p>✓ DO</p>
+                </div>
+                <div class="warning-box">
+                    <p>✗ DON'T</p>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 10px;">
+                <div>
+                    <ul class="bullet-list">
+                        <li>Use meaningful group names</li>
+                        <li>Sync groups from IdP via SCIM</li>
+                        <li>Assign permissions to groups</li>
+                        <li>Document group purposes</li>
+                        <li>Review membership regularly</li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="bullet-list">
+                        <li>Create too many small groups</li>
+                        <li>Assign permissions to users directly</li>
+                        <li>Use generic names like "group1"</li>
+                        <li>Forget to remove departed users</li>
+                        <li>Nest groups too deeply</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Service Principals -->
+        <div class="slide">
+            <h1 class="slide-title">Service Principals</h1>
+            <div class="highlight-box">
+                <p><strong>Service Principal:</strong> A non-human identity used for automation, CI/CD pipelines, and programmatic access.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li><strong>Use Cases:</strong> CI/CD, scheduled jobs, API access, integrations</li>
+                <li><strong>Authentication:</strong> OAuth 2.0 client credentials</li>
+                <li><strong>Management:</strong> Account Console or workspace Admin Console</li>
+                <li><strong>Secrets:</strong> Generate OAuth secrets with expiration</li>
+            </ul>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ Never use human user credentials for automation. Always use service principals.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Section Header -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 2</div>
+            <h1 class="slide-title">Admin Privilege Models</h1>
+            <p class="slide-subtitle">Understanding administrative roles</p>
+        </div>
+
+        <!-- Slide 13: Admin Roles Hierarchy -->
+        <div class="slide">
+            <h1 class="slide-title">Admin Roles Hierarchy</h1>
+            <table class="permission-matrix">
+                <tr>
+                    <th>Role</th>
+                    <th>Scope</th>
+                    <th>Key Capabilities</th>
+                </tr>
+                <tr>
+                    <td>Account Owner</td>
+                    <td>Entire Account</td>
+                    <td>Full control, billing, cannot be removed</td>
+                </tr>
+                <tr>
+                    <td>Account Admin</td>
+                    <td>Entire Account</td>
+                    <td>Workspaces, users, Unity Catalog, SSO</td>
+                </tr>
+                <tr>
+                    <td>Workspace Admin</td>
+                    <td>Single Workspace</td>
+                    <td>Users, groups, compute, settings</td>
+                </tr>
+                <tr>
+                    <td>Metastore Admin</td>
+                    <td>Unity Catalog</td>
+                    <td>Catalogs, schemas, storage credentials</td>
+                </tr>
+                <tr>
+                    <td>Data Owner</td>
+                    <td>Specific Objects</td>
+                    <td>Tables, views they own</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 14: Account Admin Capabilities -->
+        <div class="slide">
+            <h1 class="slide-title">Account Admin Capabilities</h1>
+            <ul class="bullet-list">
+                <li>Create and manage workspaces</li>
+                <li>Configure SSO and SCIM at account level</li>
+                <li>Manage account-level users and groups</li>
+                <li>Create and assign Unity Catalog metastores</li>
+                <li>Configure network security (Private Link, IP lists)</li>
+                <li>View billing and usage</li>
+                <li>Manage service principals at account level</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Workspace Admin Capabilities -->
+        <div class="slide">
+            <h1 class="slide-title">Workspace Admin Capabilities</h1>
+            <ul class="bullet-list">
+                <li>Add/remove users from the workspace</li>
+                <li>Create and manage workspace groups</li>
+                <li>Configure cluster policies</li>
+                <li>Manage instance pools</li>
+                <li>Configure SQL warehouses</li>
+                <li>Set workspace-level settings</li>
+                <li>Manage personal access token policies</li>
+                <li>Configure Git integration settings</li>
+            </ul>
+        </div>
+
+        <!-- Slide 16: Granting Admin Access -->
+        <div class="slide">
+            <h1 class="slide-title">Granting Admin Access</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Account Admin</div>
+                    <ul class="bullet-list">
+                        <li>Account Console → Users</li>
+                        <li>Select user → Roles tab</li>
+                        <li>Toggle "Account admin"</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Workspace Admin</div>
+                    <ul class="bullet-list">
+                        <li>Workspace Admin Console → Users</li>
+                        <li>Select user → Edit</li>
+                        <li>Check "Admin" checkbox</li>
+                        <li>OR: Add to `admins` group</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Best Practice:</strong> Use the `admins` group for workspace admin assignment. This makes it easy to audit and manage.</p>
+            </div>
+        </div>
+
+        <!-- Slide 17: Principle of Least Privilege -->
+        <div class="slide">
+            <h1 class="slide-title">Principle of Least Privilege</h1>
+            <div class="highlight-box">
+                <p><strong>Definition:</strong> Grant users only the minimum permissions necessary to perform their job functions.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li><strong>Start restrictive</strong> – Add permissions as needed</li>
+                <li><strong>Use roles appropriately</strong> – Not everyone needs admin</li>
+                <li><strong>Scope permissions</strong> – Limit to specific resources</li>
+                <li><strong>Review regularly</strong> – Remove unused permissions</li>
+                <li><strong>Document justification</strong> – Why does this user need this?</li>
+            </ul>
+        </div>
+
+        <!-- Slide 18: Section Header -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 3</div>
+            <h1 class="slide-title">Access Management Best Practices</h1>
+            <p class="slide-subtitle">Implementing secure, scalable access</p>
+        </div>
+
+        <!-- Slide 19: Access Management Framework -->
+        <div class="slide">
+            <h1 class="slide-title">Access Management Framework</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>1. Identify</h4>
+                    <ul>
+                        <li>Who needs access?</li>
+                        <li>What roles exist?</li>
+                        <li>What resources?</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>2. Organize</h4>
+                    <ul>
+                        <li>Create group structure</li>
+                        <li>Map roles to groups</li>
+                        <li>Define entitlements</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>3. Govern</h4>
+                    <ul>
+                        <li>Regular access reviews</li>
+                        <li>Audit logging</li>
+                        <li>Compliance checks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Group Structure Example -->
+        <div class="slide">
+            <h1 class="slide-title">Example: Group Structure</h1>
+            <table>
+                <tr>
+                    <th>Group</th>
+                    <th>Members</th>
+                    <th>Permissions</th>
+                </tr>
+                <tr>
+                    <td>data-engineers</td>
+                    <td>Engineering team members</td>
+                    <td>Create clusters, run jobs</td>
+                </tr>
+                <tr>
+                    <td>data-scientists</td>
+                    <td>ML team members</td>
+                    <td>Use clusters, read data</td>
+                </tr>
+                <tr>
+                    <td>analysts</td>
+                    <td>Business analysts</td>
+                    <td>SQL access only</td>
+                </tr>
+                <tr>
+                    <td>platform-admins</td>
+                    <td>Platform team</td>
+                    <td>Workspace admin</td>
+                </tr>
+                <tr>
+                    <td>finance-readers</td>
+                    <td>Finance stakeholders</td>
+                    <td>Read finance catalog</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 21: Entitlement Strategy -->
+        <div class="slide">
+            <h1 class="slide-title">Entitlement Strategy</h1>
+            <table>
+                <tr>
+                    <th>Persona</th>
+                    <th>Cluster Creation</th>
+                    <th>SQL Access</th>
+                    <th>Pool Creation</th>
+                </tr>
+                <tr>
+                    <td>Data Engineer</td>
+                    <td>✓ (via policy)</td>
+                    <td>✓</td>
+                    <td>✗</td>
+                </tr>
+                <tr>
+                    <td>Data Scientist</td>
+                    <td>✓ (via policy)</td>
+                    <td>✓</td>
+                    <td>✗</td>
+                </tr>
+                <tr>
+                    <td>Analyst</td>
+                    <td>✗</td>
+                    <td>✓</td>
+                    <td>✗</td>
+                </tr>
+                <tr>
+                    <td>Platform Admin</td>
+                    <td>✓ (unrestricted)</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+            </table>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Key:</strong> Control cluster creation through policies, not by removing entitlement entirely.</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Access Reviews -->
+        <div class="slide">
+            <h1 class="slide-title">Access Reviews</h1>
+            <ul class="bullet-list">
+                <li><strong>Frequency:</strong> Quarterly at minimum, monthly for sensitive access</li>
+                <li><strong>What to Review:</strong>
+                    <ul class="bullet-list">
+                        <li class="sub-item">Admin privileges – who has them, do they still need them?</li>
+                        <li class="sub-item">Group memberships – are they current?</li>
+                        <li class="sub-item">Inactive users – remove or deactivate</li>
+                        <li class="sub-item">Service principal access – still needed?</li>
+                    </ul>
+                </li>
+                <li><strong>Document:</strong> Keep records of reviews and decisions</li>
+            </ul>
+        </div>
+
+        <!-- Slide 23: Common Anti-Patterns -->
+        <div class="slide">
+            <h1 class="slide-title">Common Anti-Patterns</h1>
+            <div class="warning-box">
+                <p>⚠️ Avoid these common mistakes</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Everyone is admin</strong> – Makes auditing impossible</li>
+                <li><strong>Permissions to individuals</strong> – Doesn't scale</li>
+                <li><strong>Shared accounts</strong> – No accountability</li>
+                <li><strong>Stale access</strong> – Former employees still have access</li>
+                <li><strong>No documentation</strong> – Why does X have access to Y?</li>
+                <li><strong>Ignoring service principals</strong> – They're identities too</li>
+            </ul>
+        </div>
+
+        <!-- Slide 24: SCIM Integration Preview -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Integration (Preview)</h1>
+            <div class="highlight-box">
+                <p><strong>SCIM (System for Cross-domain Identity Management)</strong> automates user lifecycle management from your Identity Provider.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li>Automatic user provisioning when added to IdP groups</li>
+                <li>Automatic deprovisioning when removed</li>
+                <li>Group membership synchronization</li>
+                <li>Single source of truth for identity</li>
+            </ul>
+            <p style="margin-top: 20px; color: #888;">Deep dive: Day 8 - IAM, SCIM & Identity Integration</p>
+        </div>
+
+        <!-- Slide 25: Lab Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Hands-On Lab: User & Group Administration</h1>
+            <div class="highlight-box">
+                <p><strong>Duration:</strong> 60 minutes</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Create test users in the workspace</li>
+                <li>Create custom groups for different personas</li>
+                <li>Assign users to groups</li>
+                <li>Configure entitlements appropriately</li>
+                <li>Test permission inheritance</li>
+                <li>Document the configuration</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Lab Guide:</strong> LAB_03_User_Group_Admin.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 26: Day 3 Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Day 3 Summary</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">What We Covered</div>
+                    <ul class="bullet-list">
+                        <li>Identity types (users, groups, SPs)</li>
+                        <li>Admin privilege models</li>
+                        <li>Entitlements and their use</li>
+                        <li>Access management best practices</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Key Takeaways</div>
+                    <ul class="bullet-list">
+                        <li>Always use groups for permissions</li>
+                        <li>Apply least privilege</li>
+                        <li>Service principals for automation</li>
+                        <li>Regular access reviews are critical</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Quiz -->
+        <div class="slide">
+            <h1 class="slide-title">Day 3 Quiz</h1>
+            <div class="highlight-box">
+                <p><strong>10 Questions | 10 Minutes | 70% to Pass</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Covers identity types and management</li>
+                <li>Admin roles and privileges</li>
+                <li>Access management best practices</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Quiz File:</strong> day03_quiz.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 28: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">Coming Up: Day 4</h1>
+            <div class="highlight-box">
+                <p><strong>Spark Fundamentals for Administrators</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Apache Spark execution basics</li>
+                <li>Cluster architecture & execution flow</li>
+                <li>Admin view of Spark jobs</li>
+                <li>Hands-on: Run Spark jobs & review execution</li>
+            </ul>
+            <p style="margin-top: 40px; color: #888;">Pre-reading: day04_prereads.md</p>
+        </div>
+
+        <!-- Slide 29: Thank You -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Thank You!</h1>
+            <p class="slide-subtitle">See you on Day 4</p>
+            <p style="margin-top: 40px; color: #666;">Questions? Reach out to your trainer.</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 29</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+        let currentSlide = 0;
+        let notesVisible = false;
+
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= slides.length) index = slides.length - 1;
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    animateBullets(slide);
+                }
+            });
+            currentSlide = index;
+            updateProgress();
+        }
+
+        function animateBullets(slide) {
+            const bullets = slide.querySelectorAll('.bullet-list li');
+            bullets.forEach((bullet, i) => {
+                bullet.classList.remove('visible');
+                setTimeout(() => bullet.classList.add('visible'), 150 * i);
+            });
+        }
+
+        function updateProgress() {
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function toggleNotes() {
+            notesVisible = !notesVisible;
+            document.querySelectorAll('.speaker-notes').forEach(note => note.classList.toggle('visible', notesVisible));
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': showSlide(currentSlide + 1); break;
+                case 'ArrowLeft': case 'ArrowUp': showSlide(currentSlide - 1); break;
+                case 'Home': showSlide(0); break;
+                case 'End': showSlide(slides.length - 1); break;
+                case 'n': case 'N': toggleNotes(); break;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(currentSlide + 1);
+            else showSlide(currentSlide - 1);
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>

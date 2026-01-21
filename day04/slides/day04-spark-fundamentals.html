@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: Spark Fundamentals for Administrators | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; color: #ffffff; }
+        .slide { display: none; flex-direction: column; justify-content: flex-start; padding: 60px 80px; height: 100%; animation: fadeIn 0.5s ease-in-out; }
+        .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .slide-subtitle { font-size: 1.5em; color: #888; margin-bottom: 30px; }
+        .bullet-list { list-style: none; padding-left: 0; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.5s ease; line-height: 1.5; }
+        .bullet-list li.visible { opacity: 1; transform: translateX(0); }
+        .bullet-list li::before { content: "▸"; color: #FF3621; font-size: 1.2em; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #cccccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; font-weight: 600; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; line-height: 1.6; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); transition: width 0.3s ease; }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; font-size: 1em; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; font-size: 0.9em; color: #444; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; font-size: 1.2em; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; font-weight: 600; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; font-size: 1.2em; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 1em; }
+        .info-card li:last-child { border-bottom: none; }
+        .speaker-notes { display: none; position: fixed; bottom: 60px; left: 30px; right: 30px; background: rgba(0, 0, 0, 0.9); border: 1px solid #FF3621; border-radius: 8px; padding: 20px; font-size: 0.9em; color: #ccc; }
+        .speaker-notes.visible { display: block; }
+        .architecture-flow { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 30px 0; flex-wrap: wrap; }
+        .arch-box { background: rgba(255, 255, 255, 0.05); border: 2px solid #FF3621; border-radius: 12px; padding: 20px 25px; text-align: center; min-width: 150px; }
+        .arch-box h4 { color: #FF6B35; margin-bottom: 8px; }
+        .arch-box p { font-size: 0.9em; color: #999; }
+        .arrow { font-size: 1.5em; color: #FF3621; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; font-size: 1.1em; margin: 20px 0; overflow-x: auto; }
+        .code-block .comment { color: #8b949e; }
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 4 of 13</div>
+            <h1 class="slide-title">Spark Fundamentals for Administrators</h1>
+            <p class="slide-subtitle">Databricks Platform Administration Training</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours | Virtual Instructor-Led</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Apache Spark Execution Basics (45 min)</li>
+                <li>Cluster Architecture & Execution Flow (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Admin View of Spark Jobs (30 min)</li>
+                <li>Hands-on Lab: Run Spark Jobs (60 min)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Learning Objectives -->
+        <div class="slide">
+            <h1 class="slide-title">Learning Objectives</h1>
+            <ul class="bullet-list">
+                <li>Understand Apache Spark's distributed computing model</li>
+                <li>Explain how Spark jobs execute on Databricks clusters</li>
+                <li>Interpret Spark UI metrics for troubleshooting</li>
+                <li>Identify resource utilization and optimization opportunities</li>
+                <li>Monitor job execution from an admin perspective</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Why Admins Need Spark Knowledge -->
+        <div class="slide">
+            <h1 class="slide-title">Why Admins Need Spark Knowledge</h1>
+            <ul class="bullet-list">
+                <li><strong>Cluster Sizing</strong> – Right-size compute for workloads</li>
+                <li><strong>Troubleshooting</strong> – Diagnose slow or failing jobs</li>
+                <li><strong>Cost Optimization</strong> – Identify inefficient usage</li>
+                <li><strong>User Support</strong> – Help users debug their code</li>
+                <li><strong>Policy Design</strong> – Create appropriate cluster policies</li>
+            </ul>
+            <div class="highlight-box">
+                <p>You don't need to write Spark code, but you need to understand how it executes.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Section Header -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 1</div>
+            <h1 class="slide-title">Apache Spark Execution Basics</h1>
+            <p class="slide-subtitle">Understanding distributed computation</p>
+        </div>
+
+        <!-- Slide 6: What is Apache Spark? -->
+        <div class="slide">
+            <h1 class="slide-title">What is Apache Spark?</h1>
+            <div class="highlight-box">
+                <p><strong>Apache Spark</strong> is a unified analytics engine for large-scale data processing, featuring in-memory computing and support for SQL, streaming, ML, and graph processing.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li><strong>Distributed</strong> – Work is split across many machines</li>
+                <li><strong>In-Memory</strong> – Data cached in RAM for speed</li>
+                <li><strong>Lazy Evaluation</strong> – Transformations aren't executed until action</li>
+                <li><strong>Fault Tolerant</strong> – Automatically recovers from failures</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Spark Architecture Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Spark Architecture Overview</h1>
+            <div class="architecture-flow">
+                <div class="arch-box">
+                    <h4>Driver</h4>
+                    <p>Orchestrates execution</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-box">
+                    <h4>Cluster Manager</h4>
+                    <p>Allocates resources</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-box">
+                    <h4>Executors</h4>
+                    <p>Run tasks on data</p>
+                </div>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li><strong>Driver</strong> – Main program, creates SparkContext, schedules tasks</li>
+                <li><strong>Cluster Manager</strong> – Databricks manages this for you</li>
+                <li><strong>Executors</strong> – JVM processes on worker nodes, run tasks</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Driver vs Executors -->
+        <div class="slide">
+            <h1 class="slide-title">Driver vs Executors</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Driver Node</div>
+                    <ul class="bullet-list">
+                        <li>Runs your main program</li>
+                        <li>Analyzes & schedules work</li>
+                        <li>Collects results</li>
+                        <li>Single point of coordination</li>
+                        <li>Can be a bottleneck</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Executor Nodes</div>
+                    <ul class="bullet-list">
+                        <li>Run actual data processing</li>
+                        <li>Store data partitions</li>
+                        <li>Scale horizontally</li>
+                        <li>Execute tasks in parallel</li>
+                        <li>Report status to driver</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Jobs, Stages, Tasks -->
+        <div class="slide">
+            <h1 class="slide-title">Jobs, Stages, and Tasks</h1>
+            <table>
+                <tr>
+                    <th>Concept</th>
+                    <th>Definition</th>
+                    <th>Triggered By</th>
+                </tr>
+                <tr>
+                    <td><strong>Job</strong></td>
+                    <td>A complete computation triggered by an action</td>
+                    <td>Actions (collect, save, count)</td>
+                </tr>
+                <tr>
+                    <td><strong>Stage</strong></td>
+                    <td>Set of tasks that can run in parallel</td>
+                    <td>Shuffle boundaries</td>
+                </tr>
+                <tr>
+                    <td><strong>Task</strong></td>
+                    <td>Smallest unit of work on a single partition</td>
+                    <td>One per partition per stage</td>
+                </tr>
+            </table>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Key Insight:</strong> More stages usually means more shuffles, which impacts performance.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Transformations vs Actions -->
+        <div class="slide">
+            <h1 class="slide-title">Transformations vs Actions</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Transformations (Lazy)</div>
+                    <ul class="bullet-list">
+                        <li>filter(), select(), join()</li>
+                        <li>groupBy(), orderBy()</li>
+                        <li>withColumn(), drop()</li>
+                        <li>Create a plan, don't execute</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Actions (Trigger Execution)</div>
+                    <ul class="bullet-list">
+                        <li>count(), collect()</li>
+                        <li>show(), take()</li>
+                        <li>write(), save()</li>
+                        <li>Actually execute the plan</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Lazy Evaluation:</strong> Spark builds a plan but doesn't execute until an action is called. This enables optimization.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Shuffles Explained -->
+        <div class="slide">
+            <h1 class="slide-title">Understanding Shuffles</h1>
+            <div class="highlight-box">
+                <p><strong>Shuffle:</strong> Redistribution of data across partitions, usually across the network. Shuffles are expensive!</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li><strong>Causes:</strong> groupBy, join, repartition, orderBy</li>
+                <li><strong>Impact:</strong> Network I/O, disk I/O, memory pressure</li>
+                <li><strong>Symptoms:</strong> Long stage times, high shuffle read/write</li>
+            </ul>
+            <div class="architecture-flow">
+                <div class="arch-box"><h4>Stage 1</h4><p>Map operations</p></div>
+                <div class="arrow">⟷ Shuffle ⟷</div>
+                <div class="arch-box"><h4>Stage 2</h4><p>Reduce operations</p></div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Section Header -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 2</div>
+            <h1 class="slide-title">Cluster Architecture & Execution Flow</h1>
+            <p class="slide-subtitle">How Databricks runs Spark</p>
+        </div>
+
+        <!-- Slide 13: Databricks Cluster Types -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Cluster Types</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>All-Purpose</h4>
+                    <ul>
+                        <li>Interactive development</li>
+                        <li>Multiple users/notebooks</li>
+                        <li>Long-running</li>
+                        <li>Manual start/stop</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Job Clusters</h4>
+                    <ul>
+                        <li>Single job execution</li>
+                        <li>Created per-run</li>
+                        <li>Auto-terminated</li>
+                        <li>Cost-optimized</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>SQL Warehouses</h4>
+                    <ul>
+                        <li>SQL queries only</li>
+                        <li>Photon-optimized</li>
+                        <li>Auto-scaling</li>
+                        <li>Serverless option</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Cluster Sizing Considerations -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Sizing Considerations</h1>
+            <table>
+                <tr>
+                    <th>Factor</th>
+                    <th>Considerations</th>
+                    <th>Impact</th>
+                </tr>
+                <tr>
+                    <td>Data Size</td>
+                    <td>How much data to process?</td>
+                    <td>More workers needed</td>
+                </tr>
+                <tr>
+                    <td>Computation</td>
+                    <td>CPU-intensive vs I/O-intensive?</td>
+                    <td>Node type selection</td>
+                </tr>
+                <tr>
+                    <td>Memory</td>
+                    <td>Caching, shuffles, joins</td>
+                    <td>Memory-optimized nodes</td>
+                </tr>
+                <tr>
+                    <td>Concurrency</td>
+                    <td>How many users/jobs?</td>
+                    <td>More or larger clusters</td>
+                </tr>
+                <tr>
+                    <td>Budget</td>
+                    <td>Cost constraints</td>
+                    <td>Right-sizing essential</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 15: Auto-scaling -->
+        <div class="slide">
+            <h1 class="slide-title">Auto-scaling Clusters</h1>
+            <ul class="bullet-list">
+                <li><strong>Min Workers</strong> – Always available, baseline capacity</li>
+                <li><strong>Max Workers</strong> – Upper limit for scale-out</li>
+                <li><strong>Scale-up</strong> – Triggered by pending tasks</li>
+                <li><strong>Scale-down</strong> – After idle threshold</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Admin Tip:</strong> Set appropriate max workers in cluster policies to prevent runaway costs.</p>
+            </div>
+            <div class="code-block">
+<span class="comment"># Autoscaling configuration</span>
+"autoscale": {
+  "min_workers": 2,
+  "max_workers": 10
+}
+            </div>
+        </div>
+
+        <!-- Slide 16: Job Execution Flow -->
+        <div class="slide">
+            <h1 class="slide-title">Job Execution Flow</h1>
+            <div class="architecture-flow">
+                <div class="arch-box"><h4>1. Submit</h4><p>Code to driver</p></div>
+                <div class="arrow">→</div>
+                <div class="arch-box"><h4>2. Plan</h4><p>Build DAG</p></div>
+                <div class="arrow">→</div>
+                <div class="arch-box"><h4>3. Schedule</h4><p>Create tasks</p></div>
+                <div class="arrow">→</div>
+                <div class="arch-box"><h4>4. Execute</h4><p>Run on executors</p></div>
+                <div class="arrow">→</div>
+                <div class="arch-box"><h4>5. Return</h4><p>Results to driver</p></div>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li>DAG (Directed Acyclic Graph) represents the computation plan</li>
+                <li>Spark optimizes the DAG before execution</li>
+                <li>Tasks are distributed based on data locality when possible</li>
+            </ul>
+        </div>
+
+        <!-- Slide 17: Section Header -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 3</div>
+            <h1 class="slide-title">Admin View of Spark Jobs</h1>
+            <p class="slide-subtitle">Monitoring and troubleshooting</p>
+        </div>
+
+        <!-- Slide 18: Spark UI Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Spark UI Overview</h1>
+            <ul class="bullet-list">
+                <li><strong>Jobs Tab</strong> – All jobs with status and duration</li>
+                <li><strong>Stages Tab</strong> – Stage details, shuffle metrics</li>
+                <li><strong>Storage Tab</strong> – Cached RDDs/DataFrames</li>
+                <li><strong>Executors Tab</strong> – Resource usage per executor</li>
+                <li><strong>SQL Tab</strong> – SQL query plans and execution</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Access:</strong> Cluster → Apps → Spark UI (while cluster is running)</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Key Metrics to Monitor -->
+        <div class="slide">
+            <h1 class="slide-title">Key Metrics to Monitor</h1>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>What It Shows</th>
+                    <th>Warning Signs</th>
+                </tr>
+                <tr>
+                    <td>Task Duration</td>
+                    <td>Time per task</td>
+                    <td>High variance (data skew)</td>
+                </tr>
+                <tr>
+                    <td>Shuffle Read/Write</td>
+                    <td>Data movement</td>
+                    <td>Very large values</td>
+                </tr>
+                <tr>
+                    <td>GC Time</td>
+                    <td>Garbage collection</td>
+                    <td>>10% of task time</td>
+                </tr>
+                <tr>
+                    <td>Spill (Memory/Disk)</td>
+                    <td>Data overflow</td>
+                    <td>Any spill indicates memory pressure</td>
+                </tr>
+                <tr>
+                    <td>Failed Tasks</td>
+                    <td>Task failures</td>
+                    <td>Repeated failures = problem</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 20: Common Performance Issues -->
+        <div class="slide">
+            <h1 class="slide-title">Common Performance Issues</h1>
+            <ul class="bullet-list">
+                <li><strong>Data Skew</strong> – Uneven partition sizes, some tasks take much longer</li>
+                <li><strong>Too Many Shuffles</strong> – Inefficient query plans</li>
+                <li><strong>Small Files</strong> – Too many small partitions</li>
+                <li><strong>Memory Pressure</strong> – Spilling to disk, OOM errors</li>
+                <li><strong>Driver Overload</strong> – Too much data collected to driver</li>
+            </ul>
+        </div>
+
+        <!-- Slide 21: Troubleshooting Workflow -->
+        <div class="slide">
+            <h1 class="slide-title">Troubleshooting Workflow</h1>
+            <ul class="bullet-list">
+                <li><strong>1. Identify the slow stage</strong> – Which stage takes longest?</li>
+                <li><strong>2. Check task distribution</strong> – Are tasks evenly distributed?</li>
+                <li><strong>3. Review shuffle metrics</strong> – Excessive data movement?</li>
+                <li><strong>4. Check for spills</strong> – Memory issues?</li>
+                <li><strong>5. Examine the query plan</strong> – Inefficient operations?</li>
+                <li><strong>6. Review cluster metrics</strong> – Resource utilization?</li>
+            </ul>
+        </div>
+
+        <!-- Slide 22: Cluster Metrics Dashboard -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Metrics Dashboard</h1>
+            <ul class="bullet-list">
+                <li><strong>Ganglia Metrics</strong> – Historical cluster metrics</li>
+                <li><strong>CPU Utilization</strong> – Are workers fully utilized?</li>
+                <li><strong>Memory Usage</strong> – Approaching limits?</li>
+                <li><strong>Network I/O</strong> – Shuffle-heavy workloads</li>
+                <li><strong>Disk I/O</strong> – Spilling or heavy reads?</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Access:</strong> Cluster → Metrics tab</p>
+            </div>
+        </div>
+
+        <!-- Slide 23: Lab Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Hands-On Lab: Run Spark Jobs</h1>
+            <div class="highlight-box">
+                <p><strong>Duration:</strong> 60 minutes</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Create and attach to a cluster</li>
+                <li>Run sample Spark jobs</li>
+                <li>Explore the Spark UI</li>
+                <li>Identify jobs, stages, and tasks</li>
+                <li>Review execution metrics</li>
+                <li>Interpret cluster resource usage</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Lab Guide:</strong> LAB_04_Spark_Jobs.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 24: Day 4 Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Day 4 Summary</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">What We Covered</div>
+                    <ul class="bullet-list">
+                        <li>Spark distributed computing model</li>
+                        <li>Driver vs executors</li>
+                        <li>Jobs, stages, tasks</li>
+                        <li>Spark UI and metrics</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Key Takeaways</div>
+                    <ul class="bullet-list">
+                        <li>Spark is lazy until actions</li>
+                        <li>Shuffles are expensive</li>
+                        <li>Monitor for skew and spills</li>
+                        <li>Use Spark UI for debugging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: Quiz -->
+        <div class="slide">
+            <h1 class="slide-title">Day 4 Quiz</h1>
+            <div class="highlight-box">
+                <p><strong>10 Questions | 10 Minutes | 70% to Pass</strong></p>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Quiz File:</strong> day04_quiz.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 26: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">Coming Up: Day 5</h1>
+            <div class="highlight-box">
+                <p><strong>Delta Lake Fundamentals</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Delta Lake architecture</li>
+                <li>ACID transactions & versioning</li>
+                <li>Time travel & admin implications</li>
+                <li>Hands-on: Inspect Delta tables</li>
+            </ul>
+        </div>
+
+        <!-- Slide 27: Thank You -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Thank You!</h1>
+            <p class="slide-subtitle">See you on Day 5</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 27</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+        let currentSlide = 0;
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= slides.length) index = slides.length - 1;
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) { slide.classList.add('active'); animateBullets(slide); }
+            });
+            currentSlide = index;
+            updateProgress();
+        }
+        function animateBullets(slide) {
+            const bullets = slide.querySelectorAll('.bullet-list li');
+            bullets.forEach((bullet, i) => {
+                bullet.classList.remove('visible');
+                setTimeout(() => bullet.classList.add('visible'), 150 * i);
+            });
+        }
+        function updateProgress() {
+            progressBar.style.width = ((currentSlide + 1) / slides.length) * 100 + '%';
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        }
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': showSlide(currentSlide + 1); break;
+                case 'ArrowLeft': case 'ArrowUp': showSlide(currentSlide - 1); break;
+                case 'Home': showSlide(0); break;
+                case 'End': showSlide(slides.length - 1); break;
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(currentSlide + 1);
+            else showSlide(currentSlide - 1);
+        });
+        showSlide(0);
+    </script>
+</body>
+</html>

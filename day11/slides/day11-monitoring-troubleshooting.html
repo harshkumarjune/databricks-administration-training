@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 11: Monitoring & Troubleshooting | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 0.95em; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 11 of 13</div>
+            <h1 class="slide-title">Monitoring & Troubleshooting</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Observability Overview (30 min)</li>
+                <li>System Tables for Monitoring (45 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Performance Troubleshooting (45 min)</li>
+                <li>Log Analysis & Debugging (30 min)</li>
+                <li>Hands-on Lab: Monitoring Dashboard (45 min)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Observability Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Observability</h1>
+            <div class="highlight-box">
+                <p><strong>Observability</strong> enables understanding of system health, performance, and behavior through metrics, logs, and traces.</p>
+            </div>
+            <div class="three-column" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h4>Metrics</h4>
+                    <ul>
+                        <li>Cluster utilization</li>
+                        <li>Job success rates</li>
+                        <li>Query performance</li>
+                        <li>Storage usage</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Logs</h4>
+                    <ul>
+                        <li>Driver logs</li>
+                        <li>Executor logs</li>
+                        <li>Audit logs</li>
+                        <li>Application logs</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Traces</h4>
+                    <ul>
+                        <li>Data lineage</li>
+                        <li>Query execution</li>
+                        <li>Job dependencies</li>
+                        <li>Access patterns</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: System Tables -->
+        <div class="slide">
+            <h1 class="slide-title">System Tables</h1>
+            <div class="highlight-box">
+                <p><strong>System Tables</strong> provide queryable data about your Databricks account for observability, auditing, and cost analysis.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Located in <code>system</code> catalog</li>
+                <li>Historical data retention varies</li>
+                <li>Query with SQL or DataFrames</li>
+                <li>Build custom dashboards</li>
+                <li>Create alerts and reports</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: System Table Categories -->
+        <div class="slide">
+            <h1 class="slide-title">System Table Categories</h1>
+            <table>
+                <tr>
+                    <th>Schema</th>
+                    <th>Tables</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td>system.access</td>
+                    <td>audit, table_lineage, column_lineage</td>
+                    <td>Security & governance</td>
+                </tr>
+                <tr>
+                    <td>system.billing</td>
+                    <td>usage, list_prices</td>
+                    <td>Cost analysis</td>
+                </tr>
+                <tr>
+                    <td>system.compute</td>
+                    <td>clusters, warehouses</td>
+                    <td>Compute monitoring</td>
+                </tr>
+                <tr>
+                    <td>system.workflow</td>
+                    <td>jobs, job_runs, job_tasks</td>
+                    <td>Job monitoring</td>
+                </tr>
+                <tr>
+                    <td>system.query</td>
+                    <td>history</td>
+                    <td>Query performance</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 6: Audit Logs -->
+        <div class="slide">
+            <h1 class="slide-title">Audit Logs (system.access.audit)</h1>
+            <div class="code-block">
+SELECT<br>
+&nbsp;&nbsp;event_time,<br>
+&nbsp;&nbsp;action_name,<br>
+&nbsp;&nbsp;user_identity.email AS user_email,<br>
+&nbsp;&nbsp;request_params,<br>
+&nbsp;&nbsp;response.status_code<br>
+FROM system.access.audit<br>
+WHERE event_date >= current_date() - 7<br>
+&nbsp;&nbsp;AND action_name = 'getTable'<br>
+ORDER BY event_time DESC<br>
+LIMIT 100;
+            </div>
+            <ul class="bullet-list" style="margin-top: 15px;">
+                <li>Tracks all user and system actions</li>
+                <li>90-day retention (default)</li>
+                <li>Essential for compliance</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Billing Usage -->
+        <div class="slide">
+            <h1 class="slide-title">Billing Usage (system.billing.usage)</h1>
+            <div class="code-block">
+SELECT<br>
+&nbsp;&nbsp;usage_date,<br>
+&nbsp;&nbsp;workspace_id,<br>
+&nbsp;&nbsp;sku_name,<br>
+&nbsp;&nbsp;usage_type,<br>
+&nbsp;&nbsp;SUM(usage_quantity) AS total_dbus,<br>
+&nbsp;&nbsp;SUM(usage_quantity * list_prices.pricing.default) AS estimated_cost<br>
+FROM system.billing.usage<br>
+JOIN system.billing.list_prices<br>
+&nbsp;&nbsp;ON usage.sku_name = list_prices.sku_name<br>
+WHERE usage_date >= current_date() - 30<br>
+GROUP BY 1, 2, 3, 4<br>
+ORDER BY estimated_cost DESC;
+            </div>
+        </div>
+
+        <!-- Slide 8: Cluster Monitoring -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Monitoring (system.compute.clusters)</h1>
+            <div class="code-block">
+SELECT<br>
+&nbsp;&nbsp;cluster_id,<br>
+&nbsp;&nbsp;cluster_name,<br>
+&nbsp;&nbsp;driver_node_type,<br>
+&nbsp;&nbsp;worker_count,<br>
+&nbsp;&nbsp;state,<br>
+&nbsp;&nbsp;start_time,<br>
+&nbsp;&nbsp;end_time,<br>
+&nbsp;&nbsp;TIMESTAMPDIFF(MINUTE, start_time, COALESCE(end_time, current_timestamp())) AS runtime_minutes<br>
+FROM system.compute.clusters<br>
+WHERE start_time >= current_date() - 7<br>
+ORDER BY start_time DESC;
+            </div>
+        </div>
+
+        <!-- Slide 9: Job Monitoring -->
+        <div class="slide">
+            <h1 class="slide-title">Job Monitoring (system.workflow)</h1>
+            <div class="code-block">
+-- Job success rate by day<br>
+SELECT<br>
+&nbsp;&nbsp;DATE(end_time) AS run_date,<br>
+&nbsp;&nbsp;COUNT(*) AS total_runs,<br>
+&nbsp;&nbsp;SUM(CASE WHEN result_state = 'SUCCESS' THEN 1 ELSE 0 END) AS successful,<br>
+&nbsp;&nbsp;SUM(CASE WHEN result_state = 'FAILED' THEN 1 ELSE 0 END) AS failed,<br>
+&nbsp;&nbsp;ROUND(SUM(CASE WHEN result_state = 'SUCCESS' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS success_rate<br>
+FROM system.workflow.job_runs<br>
+WHERE end_time >= current_date() - 30<br>
+GROUP BY 1<br>
+ORDER BY 1;
+            </div>
+        </div>
+
+        <!-- Slide 10: Query Performance -->
+        <div class="slide">
+            <h1 class="slide-title">Query Performance (system.query.history)</h1>
+            <div class="code-block">
+-- Slowest queries<br>
+SELECT<br>
+&nbsp;&nbsp;statement_id,<br>
+&nbsp;&nbsp;executed_by,<br>
+&nbsp;&nbsp;statement_text,<br>
+&nbsp;&nbsp;total_duration_ms / 1000 AS duration_seconds,<br>
+&nbsp;&nbsp;rows_produced,<br>
+&nbsp;&nbsp;warehouse_id<br>
+FROM system.query.history<br>
+WHERE start_time >= current_date() - 7<br>
+ORDER BY total_duration_ms DESC<br>
+LIMIT 20;
+            </div>
+        </div>
+
+        <!-- Slide 11: Built-in Monitoring Tools -->
+        <div class="slide">
+            <h1 class="slide-title">Built-in Monitoring Tools</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Cluster Metrics</h4>
+                    <ul>
+                        <li>CPU utilization</li>
+                        <li>Memory usage</li>
+                        <li>Network I/O</li>
+                        <li>Disk usage</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Spark UI</h4>
+                    <ul>
+                        <li>Job stages</li>
+                        <li>Task distribution</li>
+                        <li>Storage info</li>
+                        <li>Executors</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>SQL Warehouse</h4>
+                    <ul>
+                        <li>Query history</li>
+                        <li>Queue time</li>
+                        <li>Cache hit rate</li>
+                        <li>Active queries</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Spark UI Deep Dive -->
+        <div class="slide">
+            <h1 class="slide-title">Spark UI for Troubleshooting</h1>
+            <ul class="bullet-list">
+                <li><strong>Jobs tab</strong> – Overall job execution</li>
+                <li><strong>Stages tab</strong> – Stage-level metrics</li>
+                <li><strong>Storage tab</strong> – Cached DataFrames</li>
+                <li><strong>Environment tab</strong> – Spark config</li>
+                <li><strong>Executors tab</strong> – Worker status</li>
+                <li><strong>SQL tab</strong> – Query plans</li>
+            </ul>
+            <div class="success-box" style="margin-top: 15px;">
+                <p>✓ Access Spark UI from cluster details → Apps → Spark UI</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Common Performance Issues -->
+        <div class="slide">
+            <h1 class="slide-title">Common Performance Issues</h1>
+            <table>
+                <tr>
+                    <th>Symptom</th>
+                    <th>Likely Cause</th>
+                    <th>Solution</th>
+                </tr>
+                <tr>
+                    <td>Slow query</td>
+                    <td>Data skew</td>
+                    <td>Repartition, salting</td>
+                </tr>
+                <tr>
+                    <td>Out of memory</td>
+                    <td>Large shuffle</td>
+                    <td>Increase partitions, memory</td>
+                </tr>
+                <tr>
+                    <td>Long GC pauses</td>
+                    <td>Memory pressure</td>
+                    <td>Tune executor memory</td>
+                </tr>
+                <tr>
+                    <td>Stragglers</td>
+                    <td>Uneven task distribution</td>
+                    <td>Enable adaptive query</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 14: Data Skew -->
+        <div class="slide">
+            <h1 class="slide-title">Identifying Data Skew</h1>
+            <div class="highlight-box">
+                <p><strong>Data Skew</strong> occurs when data is unevenly distributed across partitions, causing some tasks to take much longer than others.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Check Spark UI for task duration variance</li>
+                <li>Look for tasks taking 10x longer than median</li>
+                <li>Common in joins on skewed keys</li>
+            </ul>
+            <div class="code-block" style="margin-top: 15px;">
+-- Identify skewed keys<br>
+SELECT key_column, COUNT(*) as cnt<br>
+FROM table<br>
+GROUP BY key_column<br>
+ORDER BY cnt DESC<br>
+LIMIT 20;
+            </div>
+        </div>
+
+        <!-- Slide 15: Fixing Data Skew -->
+        <div class="slide">
+            <h1 class="slide-title">Fixing Data Skew</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Adaptive Query Execution</div>
+                    <div class="code-block" style="font-size: 0.9em;">
+-- Enabled by default in DBR 9.0+<br>
+SET spark.sql.adaptive.enabled = true;<br>
+SET spark.sql.adaptive.skewJoin.enabled = true;
+                    </div>
+                </div>
+                <div>
+                    <div class="column-title">Salt Keys</div>
+                    <div class="code-block" style="font-size: 0.9em;">
+-- Add salt to distribute skewed key<br>
+SELECT *, CONCAT(key, '_', FLOOR(RAND() * 10)) as salted_key<br>
+FROM skewed_table
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Memory Issues -->
+        <div class="slide">
+            <h1 class="slide-title">Memory Troubleshooting</h1>
+            <ul class="bullet-list">
+                <li><strong>OutOfMemoryError</strong> – Increase executor memory</li>
+                <li><strong>Excessive spill</strong> – More partitions, more memory</li>
+                <li><strong>Driver OOM</strong> – Avoid collect() on large data</li>
+            </ul>
+            <div class="code-block" style="margin-top: 20px;">
+-- Useful memory configurations<br>
+spark.executor.memory = 8g<br>
+spark.executor.memoryOverhead = 2g<br>
+spark.driver.memory = 8g<br>
+spark.sql.shuffle.partitions = 200
+            </div>
+        </div>
+
+        <!-- Slide 17: Log Analysis -->
+        <div class="slide">
+            <h1 class="slide-title">Log Analysis</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Driver Logs</div>
+                    <ul class="bullet-list">
+                        <li>Application output</li>
+                        <li>Error messages</li>
+                        <li>Job scheduling info</li>
+                        <li>Spark SQL plans</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Executor Logs</div>
+                    <ul class="bullet-list">
+                        <li>Task execution</li>
+                        <li>Memory issues</li>
+                        <li>Shuffle failures</li>
+                        <li>Data read/write</li>
+                    </ul>
+                </div>
+            </div>
+            <p style="margin-top: 20px; font-size: 1.1em;">Access logs from: Cluster → Driver Logs / Executor Logs tabs</p>
+        </div>
+
+        <!-- Slide 18: Log Delivery -->
+        <div class="slide">
+            <h1 class="slide-title">Log Delivery to Cloud Storage</h1>
+            <ul class="bullet-list">
+                <li>Configure cluster log delivery location</li>
+                <li>Logs persisted after cluster termination</li>
+                <li>DBFS or cloud storage path</li>
+                <li>Retention policies configurable</li>
+            </ul>
+            <div class="code-block" style="margin-top: 20px;">
+{<br>
+&nbsp;&nbsp;"cluster_log_conf": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"dbfs": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"destination": "dbfs:/cluster-logs"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+            </div>
+        </div>
+
+        <!-- Slide 19: External Monitoring -->
+        <div class="slide">
+            <h1 class="slide-title">External Monitoring Integration</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Datadog</h4>
+                    <ul>
+                        <li>Metrics integration</li>
+                        <li>Log forwarding</li>
+                        <li>Custom dashboards</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Splunk</h4>
+                    <ul>
+                        <li>Log aggregation</li>
+                        <li>Search & analysis</li>
+                        <li>Alerting</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Prometheus/Grafana</h4>
+                    <ul>
+                        <li>Metrics scraping</li>
+                        <li>Time-series data</li>
+                        <li>Visualization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Creating Alerts -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks SQL Alerts</h1>
+            <ul class="bullet-list">
+                <li>Create alerts based on SQL query results</li>
+                <li>Trigger on threshold conditions</li>
+                <li>Email, Slack, webhook notifications</li>
+                <li>Schedule evaluation frequency</li>
+            </ul>
+            <div class="code-block" style="margin-top: 20px;">
+-- Alert: Job failure rate > 10%<br>
+SELECT<br>
+&nbsp;&nbsp;ROUND(SUM(CASE WHEN result_state = 'FAILED' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS failure_rate<br>
+FROM system.workflow.job_runs<br>
+WHERE end_time >= current_date() - 1<br>
+HAVING failure_rate > 10
+            </div>
+        </div>
+
+        <!-- Slide 21: Building Dashboards -->
+        <div class="slide">
+            <h1 class="slide-title">Building Monitoring Dashboards</h1>
+            <ul class="bullet-list">
+                <li>Use Databricks SQL Dashboards</li>
+                <li>Query system tables</li>
+                <li>Visualize key metrics</li>
+                <li>Schedule refresh</li>
+                <li>Share with stakeholders</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ Sample dashboards available in Databricks documentation</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Key Metrics to Monitor -->
+        <div class="slide">
+            <h1 class="slide-title">Key Metrics to Monitor</h1>
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Key Metrics</th>
+                </tr>
+                <tr>
+                    <td>Cost</td>
+                    <td>Daily DBU usage, cost by workspace/team</td>
+                </tr>
+                <tr>
+                    <td>Jobs</td>
+                    <td>Success rate, duration trends, failure reasons</td>
+                </tr>
+                <tr>
+                    <td>Clusters</td>
+                    <td>Utilization, idle time, startup time</td>
+                </tr>
+                <tr>
+                    <td>Queries</td>
+                    <td>P50/P95 latency, slow queries, errors</td>
+                </tr>
+                <tr>
+                    <td>Security</td>
+                    <td>Access patterns, permission changes</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 23: Lab Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Hands-On Lab: Monitoring Dashboard</h1>
+            <div class="highlight-box">
+                <p><strong>Duration:</strong> 45 minutes</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Query system tables for insights</li>
+                <li>Identify slow queries and jobs</li>
+                <li>Analyze cost trends</li>
+                <li>Build monitoring dashboard</li>
+                <li>Create alert for failures</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Lab Guide:</strong> LAB_11_Monitoring_Dashboard.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 24: Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Day 11 Summary</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Monitoring</div>
+                    <ul class="bullet-list">
+                        <li>System tables for observability</li>
+                        <li>Billing and usage tracking</li>
+                        <li>Job and cluster metrics</li>
+                        <li>SQL alerts and dashboards</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Troubleshooting</div>
+                    <ul class="bullet-list">
+                        <li>Spark UI analysis</li>
+                        <li>Data skew detection</li>
+                        <li>Memory tuning</li>
+                        <li>Log analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">Coming Up: Day 12</h1>
+            <div class="highlight-box">
+                <p><strong>Infrastructure, Compliance & Cost Governance</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Network security and VPC</li>
+                <li>Compliance frameworks</li>
+                <li>Cost management strategies</li>
+                <li>Tagging and chargeback</li>
+            </ul>
+        </div>
+
+        <!-- Slide 26: Thank You -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Thank You!</h1>
+            <p style="font-size: 1.5em; color: #888;">See you on Day 12</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 26</div>
+    <div class="nav-hint">← → Navigate</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        function showSlide(n) {
+            if (n < 0) n = 0; if (n >= slides.length) n = slides.length - 1;
+            slides.forEach(s => s.classList.remove('active'));
+            slides[n].classList.add('active');
+            currentSlide = n;
+            document.getElementById('progressBar').style.width = ((n + 1) / slides.length) * 100 + '%';
+            document.getElementById('slideCounter').textContent = `${n + 1} / ${slides.length}`;
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
+            else if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+        });
+        document.addEventListener('click', e => {
+            e.clientX > window.innerWidth / 2 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1);
+        });
+        showSlide(0);
+    </script>
+</body>
+</html>

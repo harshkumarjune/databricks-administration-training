@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1: Lakehouse & Workspace Foundations | Databricks Admin Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #ffffff;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 60px 80px;
+            height: 100%;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-title {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #FF3621, #FF6B35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-subtitle {
+            font-size: 1.5em;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            padding-left: 40px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.5s ease;
+            line-height: 1.5;
+        }
+
+        .bullet-list li.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .bullet-list li::before {
+            content: "▸";
+            color: #FF3621;
+            font-size: 1.2em;
+            position: absolute;
+            left: 0;
+        }
+
+        .bullet-list li.sub-item {
+            font-size: 1.2em;
+            margin-left: 40px;
+            color: #cccccc;
+        }
+
+        .bullet-list li.sub-item::before {
+            content: "◦";
+            color: #FF6B35;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 30px;
+        }
+
+        .column-title {
+            font-size: 1.4em;
+            color: #FF6B35;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .highlight-box {
+            background: rgba(255, 54, 33, 0.1);
+            border-left: 4px solid #FF3621;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .highlight-box p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            margin-top: 30px;
+        }
+
+        .architecture-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #FF3621;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .architecture-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 54, 33, 0.3);
+        }
+
+        .architecture-box h3 {
+            font-size: 1.3em;
+            color: #FF6B35;
+            margin-bottom: 15px;
+        }
+
+        .architecture-box p {
+            font-size: 1em;
+            color: #cccccc;
+        }
+
+        .architecture-flow {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #FF3621;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF3621, #FF6B35);
+            transition: width 0.3s ease;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .nav-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 30px;
+            font-size: 0.9em;
+            color: #444;
+        }
+
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide .slide-title {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+        }
+
+        .title-slide .slide-subtitle {
+            font-size: 1.8em;
+            color: #aaa;
+        }
+
+        .day-badge {
+            background: linear-gradient(135deg, #FF3621, #FF6B35);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .learning-objectives {
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .learning-objectives h3 {
+            color: #FF6B35;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            background: rgba(255, 54, 33, 0.2);
+            color: #FF6B35;
+            font-weight: 600;
+        }
+
+        td {
+            font-size: 1.1em;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .icon-item {
+            text-align: center;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .icon-item:hover {
+            background: rgba(255, 54, 33, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .icon-item .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .icon-item h4 {
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .icon-item p {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .comparison-table th {
+            width: 33%;
+        }
+
+        .speaker-notes {
+            display: none;
+            position: fixed;
+            bottom: 60px;
+            left: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #FF3621;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .speaker-notes.visible {
+            display: block;
+        }
+
+        .speaker-notes h4 {
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .stacked-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .layer {
+            padding: 20px 40px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .layer.gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+        .layer.silver { background: linear-gradient(135deg, #C0C0C0, #808080); color: #000; }
+        .layer.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); color: #fff; }
+        .layer.blue { background: linear-gradient(135deg, #4169E1, #1E90FF); color: #fff; }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #333;
+        }
+
+        .info-card h4 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-card ul {
+            list-style: none;
+        }
+
+        .info-card li {
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+            font-size: 1em;
+        }
+
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #333;
+        }
+
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            flex: 1;
+        }
+
+        .timeline-item .dot {
+            width: 20px;
+            height: 20px;
+            background: #FF3621;
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-item h4 {
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item p {
+            font-size: 0.9em;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 1 of 13</div>
+            <h1 class="slide-title">Lakehouse & Workspace Foundations</h1>
+            <p class="slide-subtitle">Databricks Platform Administration Training</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours | Virtual Instructor-Led</p>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Welcome participants to Day 1. This session establishes foundational knowledge of the Databricks Lakehouse platform. Emphasize that understanding architecture is crucial for effective administration.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Morning Topics</div>
+                    <ul class="bullet-list">
+                        <li>Lakehouse Architecture (45 min)</li>
+                        <li>Control Plane vs Data Plane (30 min)</li>
+                        <li class="sub-item">Break (15 min)</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Afternoon Topics</div>
+                    <ul class="bullet-list">
+                        <li>Workspace Components (30 min)</li>
+                        <li>Personas & Admin Responsibilities (30 min)</li>
+                        <li>Hands-on Lab (30 min)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Review the agenda with participants. The lab at the end will let them explore everything covered in the slides.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Learning Objectives -->
+        <div class="slide">
+            <h1 class="slide-title">Learning Objectives</h1>
+            <div class="learning-objectives">
+                <h3>By the end of this session, you will be able to:</h3>
+                <ul class="bullet-list">
+                    <li>Explain the Databricks Lakehouse architecture and its advantages</li>
+                    <li>Differentiate between Control Plane and Data Plane components</li>
+                    <li>Identify key workspace components and their purposes</li>
+                    <li>Describe administrator personas and their responsibilities</li>
+                    <li>Navigate the Databricks workspace confidently</li>
+                </ul>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>These objectives align with the Databricks Certified Associate Platform Administrator exam domains.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Section Header - Lakehouse Architecture -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 1</div>
+            <h1 class="slide-title">Lakehouse Architecture</h1>
+            <p class="slide-subtitle">Understanding the unified data platform</p>
+        </div>
+
+        <!-- Slide 5: The Data Landscape Evolution -->
+        <div class="slide">
+            <h1 class="slide-title">The Data Landscape Evolution</h1>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Data Warehouses</h4>
+                    <div class="dot"></div>
+                    <p>Structured data<br>Business intelligence<br>High cost</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Data Lakes</h4>
+                    <div class="dot"></div>
+                    <p>Raw data storage<br>Flexible schemas<br>Data quality issues</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Two-Tier Architecture</h4>
+                    <div class="dot"></div>
+                    <p>Lake + Warehouse<br>Complex pipelines<br>Data duplication</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Lakehouse</h4>
+                    <div class="dot"></div>
+                    <p>Best of both worlds<br>Unified platform<br>ACID on data lake</p>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Walk through the evolution. Key point: Lakehouse solves the "two-tier" problem where organizations had to maintain separate lake and warehouse systems.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: What is a Lakehouse? -->
+        <div class="slide">
+            <h1 class="slide-title">What is a Lakehouse?</h1>
+            <div class="highlight-box">
+                <p><strong>Definition:</strong> A Lakehouse is a data management architecture that combines the best features of data lakes (flexibility, scale, low cost) with data warehouses (reliability, performance, governance).</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Single copy of data for all workloads</li>
+                <li>ACID transactions on data lake storage</li>
+                <li>Schema enforcement and governance</li>
+                <li>Support for BI, ML, streaming, and batch</li>
+                <li>Open formats (Delta Lake, Parquet)</li>
+            </ul>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Emphasize the "single copy" benefit - no ETL between lake and warehouse. Delta Lake enables ACID on object storage.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Lakehouse vs Traditional Architectures -->
+        <div class="slide">
+            <h1 class="slide-title">Lakehouse vs Traditional Architectures</h1>
+            <table class="comparison-table">
+                <tr>
+                    <th>Capability</th>
+                    <th>Data Lake</th>
+                    <th>Data Warehouse</th>
+                    <th>Lakehouse</th>
+                </tr>
+                <tr>
+                    <td>ACID Transactions</td>
+                    <td>❌ No</td>
+                    <td>✅ Yes</td>
+                    <td>✅ Yes</td>
+                </tr>
+                <tr>
+                    <td>Unstructured Data</td>
+                    <td>✅ Yes</td>
+                    <td>❌ No</td>
+                    <td>✅ Yes</td>
+                </tr>
+                <tr>
+                    <td>Low Cost Storage</td>
+                    <td>✅ Yes</td>
+                    <td>❌ No</td>
+                    <td>✅ Yes</td>
+                </tr>
+                <tr>
+                    <td>BI Performance</td>
+                    <td>❌ Poor</td>
+                    <td>✅ Excellent</td>
+                    <td>✅ Excellent</td>
+                </tr>
+                <tr>
+                    <td>ML/AI Workloads</td>
+                    <td>✅ Yes</td>
+                    <td>❌ Limited</td>
+                    <td>✅ Yes</td>
+                </tr>
+                <tr>
+                    <td>Data Governance</td>
+                    <td>❌ Limited</td>
+                    <td>✅ Strong</td>
+                    <td>✅ Strong</td>
+                </tr>
+            </table>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>This table shows why Lakehouse is compelling - it delivers warehouse capabilities at lake economics.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Databricks Lakehouse Platform -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Lakehouse Platform</h1>
+            <div class="stacked-layers">
+                <div class="layer gold">BI & SQL Analytics | Data Science & ML | Data Engineering</div>
+                <div class="layer silver">Unity Catalog (Governance & Security)</div>
+                <div class="layer bronze">Delta Lake (Reliability & Performance)</div>
+                <div class="layer blue">Cloud Object Storage (S3 / ADLS / GCS)</div>
+            </div>
+            <ul class="bullet-list" style="margin-top: 30px;">
+                <li>Built on open source: Apache Spark, Delta Lake, MLflow</li>
+                <li>Unified governance with Unity Catalog</li>
+                <li>Works with your existing cloud storage</li>
+            </ul>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Show how layers build on each other. Storage at bottom, Delta adds reliability, Unity Catalog adds governance, workloads on top.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Key Components Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Key Platform Components</h1>
+            <div class="icon-grid">
+                <div class="icon-item">
+                    <div class="icon">△</div>
+                    <h4>Delta Lake</h4>
+                    <p>ACID transactions, time travel, schema evolution</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">⚡</div>
+                    <h4>Apache Spark</h4>
+                    <p>Distributed compute engine for big data</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">📊</div>
+                    <h4>Databricks SQL</h4>
+                    <p>SQL analytics with serverless warehouses</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">🔬</div>
+                    <h4>ML Runtime</h4>
+                    <p>Pre-configured ML libraries and tools</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">🔐</div>
+                    <h4>Unity Catalog</h4>
+                    <p>Centralized governance and access control</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">🔄</div>
+                    <h4>Delta Live Tables</h4>
+                    <p>Declarative ETL pipelines</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">📈</div>
+                    <h4>MLflow</h4>
+                    <p>ML lifecycle management</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">⚙️</div>
+                    <h4>Workflows</h4>
+                    <p>Job orchestration and scheduling</p>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Quick overview of components. We'll cover these in detail throughout the 13 days.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Section Header - Control Plane vs Data Plane -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 2</div>
+            <h1 class="slide-title">Control Plane vs Data Plane</h1>
+            <p class="slide-subtitle">Understanding the architecture for administrators</p>
+        </div>
+
+        <!-- Slide 11: Two-Plane Architecture -->
+        <div class="slide">
+            <h1 class="slide-title">Two-Plane Architecture</h1>
+            <div class="two-column">
+                <div>
+                    <div class="architecture-box">
+                        <h3>Control Plane</h3>
+                        <p>Managed by Databricks</p>
+                        <ul style="text-align: left; margin-top: 15px; font-size: 0.9em;">
+                            <li>Web application UI</li>
+                            <li>Cluster management</li>
+                            <li>Job scheduling</li>
+                            <li>Notebook storage</li>
+                            <li>Unity Catalog metadata</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="architecture-box">
+                        <h3>Data Plane</h3>
+                        <p>Runs in Your Cloud</p>
+                        <ul style="text-align: left; margin-top: 15px; font-size: 0.9em;">
+                            <li>Compute clusters (VMs)</li>
+                            <li>Data processing</li>
+                            <li>Data storage</li>
+                            <li>Network resources</li>
+                            <li>Your cloud account</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Key Insight:</strong> Your data never leaves your cloud account. Only metadata flows to the Control Plane.</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>This is critical for security conversations. Customer data stays in their cloud. Databricks only sees metadata and commands.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Control Plane Deep Dive -->
+        <div class="slide">
+            <h1 class="slide-title">Control Plane Components</h1>
+            <ul class="bullet-list">
+                <li><strong>Web Application</strong> – The UI you interact with daily</li>
+                <li><strong>Cluster Manager</strong> – Orchestrates cluster lifecycle</li>
+                <li><strong>Job Scheduler</strong> – Manages workflow execution</li>
+                <li><strong>Unity Catalog Service</strong> – Metadata and governance</li>
+                <li><strong>Repos Service</strong> – Git integration management</li>
+                <li><strong>Secrets Service</strong> – Encrypted secret storage</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Hosted in Databricks Cloud Account</strong> – Multi-tenant, highly available, managed by Databricks</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Control Plane is fully managed SaaS. Admins configure it but don't maintain infrastructure.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Data Plane Deep Dive -->
+        <div class="slide">
+            <h1 class="slide-title">Data Plane Components</h1>
+            <ul class="bullet-list">
+                <li><strong>Classic Data Plane</strong> – Compute in customer's cloud VPC/VNet</li>
+                <li><strong>Serverless Data Plane</strong> – Databricks-managed compute (optional)</li>
+                <li><strong>Cloud Storage</strong> – S3, ADLS Gen2, or GCS buckets</li>
+                <li><strong>Network Infrastructure</strong> – VPCs, subnets, security groups</li>
+            </ul>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="info-card">
+                    <h4>Classic Compute</h4>
+                    <ul>
+                        <li>VMs in your account</li>
+                        <li>You control networking</li>
+                        <li>Full infrastructure visibility</li>
+                        <li>Pay cloud provider for VMs</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Serverless Compute</h4>
+                    <ul>
+                        <li>VMs in Databricks account</li>
+                        <li>No infrastructure management</li>
+                        <li>Instant startup</li>
+                        <li>Pay Databricks for compute</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Explain serverless is optional and relatively new. Most enterprises still use classic for network control.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Cloud-Specific Architecture - AWS -->
+        <div class="slide">
+            <h1 class="slide-title">Cloud Architecture: AWS</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Control Plane (Databricks)</div>
+                    <ul class="bullet-list">
+                        <li>Hosted in Databricks AWS account</li>
+                        <li>Communicates via NAT Gateway</li>
+                        <li>Manages cluster orchestration</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Data Plane (Your AWS)</div>
+                    <ul class="bullet-list">
+                        <li>EC2 instances for clusters</li>
+                        <li>Customer-managed VPC</li>
+                        <li>S3 for data storage</li>
+                        <li>IAM roles for access</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Cross-Account Access:</strong> Databricks uses IAM roles to launch EC2 instances in your account</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>For AWS customers: explain cross-account IAM role trust. This is how Databricks manages resources in customer accounts.</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Cloud Architecture - Azure -->
+        <div class="slide">
+            <h1 class="slide-title">Cloud Architecture: Azure</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Control Plane (Databricks)</div>
+                    <ul class="bullet-list">
+                        <li>Azure Databricks Service</li>
+                        <li>Managed Resource Group</li>
+                        <li>Control plane in Databricks tenant</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Data Plane (Your Azure)</div>
+                    <ul class="bullet-list">
+                        <li>Azure VMs for clusters</li>
+                        <li>VNet (injected or managed)</li>
+                        <li>ADLS Gen2 for storage</li>
+                        <li>Managed identity for access</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>VNet Injection:</strong> Deploy Databricks into your own VNet for network isolation</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Azure uses managed resource groups. Two resource groups: one you manage, one Databricks manages (contains VMs, disks, NICs).</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Cloud Architecture - GCP -->
+        <div class="slide">
+            <h1 class="slide-title">Cloud Architecture: GCP</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Control Plane (Databricks)</div>
+                    <ul class="bullet-list">
+                        <li>GCP Databricks Service</li>
+                        <li>Managed by Databricks</li>
+                        <li>Regional deployment</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Data Plane (Your GCP)</div>
+                    <ul class="bullet-list">
+                        <li>GCE instances for clusters</li>
+                        <li>Customer VPC</li>
+                        <li>GCS for data storage</li>
+                        <li>Service accounts for access</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Private Google Access:</strong> Enable for clusters to access Google services privately</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>GCP architecture is similar to AWS. Uses service accounts instead of IAM roles.</p>
+            </div>
+        </div>
+
+        <!-- Slide 17: Section Header - Workspace Components -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 3</div>
+            <h1 class="slide-title">Databricks Workspace Components</h1>
+            <p class="slide-subtitle">Navigating the platform</p>
+        </div>
+
+        <!-- Slide 18: Workspace Overview -->
+        <div class="slide">
+            <h1 class="slide-title">What is a Workspace?</h1>
+            <div class="highlight-box">
+                <p><strong>Definition:</strong> A workspace is a Databricks deployment that provides a unified environment for data engineering, data science, and analytics teams.</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Contains notebooks, libraries, dashboards, and experiments</li>
+                <li>Manages compute resources (clusters, SQL warehouses)</li>
+                <li>Integrates with cloud storage and external systems</li>
+                <li>Provides access control and collaboration features</li>
+            </ul>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Think of workspace as a "tenant" or environment. Most orgs have multiple workspaces (dev, staging, prod).</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Workspace UI Navigation -->
+        <div class="slide">
+            <h1 class="slide-title">Workspace UI Navigation</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Left Sidebar</h4>
+                    <ul>
+                        <li>Home</li>
+                        <li>Workspace</li>
+                        <li>Repos</li>
+                        <li>Catalog</li>
+                        <li>Workflows</li>
+                        <li>Compute</li>
+                        <li>SQL Warehouses</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Main Content</h4>
+                    <ul>
+                        <li>Notebooks</li>
+                        <li>Dashboards</li>
+                        <li>Query Editor</li>
+                        <li>Job Details</li>
+                        <li>Cluster Config</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Top Bar</h4>
+                    <ul>
+                        <li>Search</li>
+                        <li>Create (+)</li>
+                        <li>Settings</li>
+                        <li>User Menu</li>
+                        <li>Help</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>We'll explore each of these in the lab. For now, just familiarize with the layout.</p>
+            </div>
+        </div>
+
+        <!-- Slide 20: Compute Resources -->
+        <div class="slide">
+            <h1 class="slide-title">Compute Resources</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">All-Purpose Clusters</div>
+                    <ul class="bullet-list">
+                        <li>Interactive development</li>
+                        <li>Shared by multiple users</li>
+                        <li>Long-running sessions</li>
+                        <li>Manual or auto-termination</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Job Clusters</div>
+                    <ul class="bullet-list">
+                        <li>Automated workloads</li>
+                        <li>Created per job run</li>
+                        <li>Terminated after completion</li>
+                        <li>Cost-optimized for batch</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>SQL Warehouses:</strong> Specialized compute for SQL analytics - serverless option available</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Admins need to understand the cost implications. Job clusters are cheaper for production workloads.</p>
+            </div>
+        </div>
+
+        <!-- Slide 21: Data Objects -->
+        <div class="slide">
+            <h1 class="slide-title">Data Objects in Workspace</h1>
+            <div class="icon-grid">
+                <div class="icon-item">
+                    <div class="icon">📓</div>
+                    <h4>Notebooks</h4>
+                    <p>Interactive code documents (Python, SQL, Scala, R)</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">📁</div>
+                    <h4>Folders</h4>
+                    <p>Organize notebooks, files, and dashboards</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">📚</div>
+                    <h4>Libraries</h4>
+                    <p>External packages (PyPI, Maven, etc.)</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">📊</div>
+                    <h4>Dashboards</h4>
+                    <p>Visualizations and reports</p>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>These are workspace artifacts. Data tables are managed in Unity Catalog (Day 6-7).</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Section Header - Personas -->
+        <div class="slide title-slide">
+            <div class="day-badge">Section 4</div>
+            <h1 class="slide-title">Personas & Admin Responsibilities</h1>
+            <p class="slide-subtitle">Who does what on the platform</p>
+        </div>
+
+        <!-- Slide 23: Platform Personas -->
+        <div class="slide">
+            <h1 class="slide-title">Platform Personas</h1>
+            <div class="icon-grid">
+                <div class="icon-item">
+                    <div class="icon">👨‍💻</div>
+                    <h4>Data Engineer</h4>
+                    <p>Build data pipelines, ETL, Delta Lake tables</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">🔬</div>
+                    <h4>Data Scientist</h4>
+                    <p>ML models, experiments, feature engineering</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">📈</div>
+                    <h4>Data Analyst</h4>
+                    <p>SQL queries, dashboards, reports</p>
+                </div>
+                <div class="icon-item">
+                    <div class="icon">⚙️</div>
+                    <h4>Platform Admin</h4>
+                    <p>Manage users, compute, governance, security</p>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>This training focuses on the Platform Admin persona. Understanding other personas helps you serve them better.</p>
+            </div>
+        </div>
+
+        <!-- Slide 24: Administrator Roles -->
+        <div class="slide">
+            <h1 class="slide-title">Administrator Roles</h1>
+            <table>
+                <tr>
+                    <th>Role</th>
+                    <th>Scope</th>
+                    <th>Key Responsibilities</th>
+                </tr>
+                <tr>
+                    <td><strong>Account Admin</strong></td>
+                    <td>Entire Account</td>
+                    <td>Workspaces, identity, billing, Unity Catalog</td>
+                </tr>
+                <tr>
+                    <td><strong>Workspace Admin</strong></td>
+                    <td>Single Workspace</td>
+                    <td>Users, groups, compute, workspace settings</td>
+                </tr>
+                <tr>
+                    <td><strong>Metastore Admin</strong></td>
+                    <td>Unity Catalog</td>
+                    <td>Catalogs, schemas, permissions, lineage</td>
+                </tr>
+                <tr>
+                    <td><strong>Cluster Admin</strong></td>
+                    <td>Specific Clusters</td>
+                    <td>Cluster configuration, permissions</td>
+                </tr>
+            </table>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Most participants will be Workspace Admins. Account Admins are typically cloud platform team or security.</p>
+            </div>
+        </div>
+
+        <!-- Slide 25: Account Admin Responsibilities -->
+        <div class="slide">
+            <h1 class="slide-title">Account Admin Responsibilities</h1>
+            <ul class="bullet-list">
+                <li><strong>Workspace Management</strong> – Create, configure, delete workspaces</li>
+                <li><strong>Identity & Access</strong> – SCIM, SSO, service principals</li>
+                <li><strong>Unity Catalog</strong> – Metastore setup, cross-workspace governance</li>
+                <li><strong>Billing</strong> – Monitor usage, manage subscriptions</li>
+                <li><strong>Network Security</strong> – Private Link, IP access lists</li>
+                <li><strong>Compliance</strong> – Audit logs, encryption settings</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Access:</strong> Account Console at accounts.cloud.databricks.com (or cloud-specific URL)</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Account-level settings affect all workspaces. Changes here have broad impact.</p>
+            </div>
+        </div>
+
+        <!-- Slide 26: Workspace Admin Responsibilities -->
+        <div class="slide">
+            <h1 class="slide-title">Workspace Admin Responsibilities</h1>
+            <ul class="bullet-list">
+                <li><strong>User Management</strong> – Add/remove users, assign groups</li>
+                <li><strong>Compute Management</strong> – Clusters, policies, pools, warehouses</li>
+                <li><strong>Workspace Settings</strong> – Features, integrations, repos</li>
+                <li><strong>Access Control</strong> – Folder permissions, secret scopes</li>
+                <li><strong>Monitoring</strong> – Jobs, clusters, usage patterns</li>
+                <li><strong>Support</strong> – Troubleshoot user issues</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Access:</strong> Admin Console within workspace (Settings → Admin Console)</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>This is the day-to-day admin work. Most of this training covers workspace administration.</p>
+            </div>
+        </div>
+
+        <!-- Slide 27: Admin Console Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Admin Console Overview</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Identity & Access</h4>
+                    <ul>
+                        <li>Users</li>
+                        <li>Groups</li>
+                        <li>Service Principals</li>
+                        <li>Permissions</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Compute</h4>
+                    <ul>
+                        <li>Cluster Policies</li>
+                        <li>Instance Pools</li>
+                        <li>SQL Warehouses</li>
+                        <li>Serverless</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Settings</h4>
+                    <ul>
+                        <li>Workspace Settings</li>
+                        <li>Notification Destinations</li>
+                        <li>Partner Connect</li>
+                        <li>Legacy Features</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>We'll explore each section in detail over the next 12 days. Today is just orientation.</p>
+            </div>
+        </div>
+
+        <!-- Slide 28: Best Practices for Admins -->
+        <div class="slide">
+            <h1 class="slide-title">Best Practices for Administrators</h1>
+            <ul class="bullet-list">
+                <li><strong>Least Privilege</strong> – Grant minimum permissions needed</li>
+                <li><strong>Use Groups</strong> – Never assign permissions to individuals</li>
+                <li><strong>Cluster Policies</strong> – Enforce standards, control costs</li>
+                <li><strong>Monitor Actively</strong> – Set up alerts for anomalies</li>
+                <li><strong>Document Everything</strong> – Runbooks, configurations, decisions</li>
+                <li><strong>Stay Current</strong> – Follow Databricks release notes</li>
+            </ul>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>These principles apply throughout the course. We'll reinforce them in every module.</p>
+            </div>
+        </div>
+
+        <!-- Slide 29: Lab Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Hands-On Lab: Workspace Navigation</h1>
+            <div class="highlight-box">
+                <p><strong>Duration:</strong> 30 minutes</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Log into your Databricks workspace</li>
+                <li>Navigate the workspace UI (sidebar, search, create)</li>
+                <li>Explore a sample notebook</li>
+                <li>View an existing cluster configuration</li>
+                <li>Browse the Data Explorer</li>
+                <li>Access the Admin Console (if admin)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Lab Guide:</strong> LAB_01_Workspace_Navigation.md</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>This is an exploratory lab. Goal is familiarity, not mastery. Encourage questions.</p>
+            </div>
+        </div>
+
+        <!-- Slide 30: Day 1 Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Day 1 Summary</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">What We Covered</div>
+                    <ul class="bullet-list">
+                        <li>Lakehouse architecture & benefits</li>
+                        <li>Control Plane vs Data Plane</li>
+                        <li>Workspace components</li>
+                        <li>Admin personas & responsibilities</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Key Takeaways</div>
+                    <ul class="bullet-list">
+                        <li>Lakehouse = Lake + Warehouse benefits</li>
+                        <li>Your data stays in your cloud</li>
+                        <li>Workspaces are the admin boundary</li>
+                        <li>Know your admin scope</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Recap key points. Ask if there are questions before moving to quiz.</p>
+            </div>
+        </div>
+
+        <!-- Slide 31: Day 1 Quiz -->
+        <div class="slide">
+            <h1 class="slide-title">Day 1 Quiz</h1>
+            <div class="highlight-box">
+                <p><strong>10 Questions | 10 Minutes | 70% to Pass</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Covers all topics from today's session</li>
+                <li>Multiple choice and select-all-that-apply</li>
+                <li>Review answers together after completion</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Quiz File:</strong> day01_quiz.md</p>
+            </div>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Give participants 10 minutes. Then review answers as a group.</p>
+            </div>
+        </div>
+
+        <!-- Slide 32: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">Coming Up: Day 2</h1>
+            <div class="highlight-box">
+                <p><strong>Platform Administration Overview</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Account vs Workspace-Level Administration</li>
+                <li>Workspace Provisioning & Configuration</li>
+                <li>Admin Console Deep Dive</li>
+                <li>Workspace-Level Settings</li>
+            </ul>
+            <p style="margin-top: 40px; color: #888;">Pre-reading: day02_prereads.md</p>
+            <div class="speaker-notes">
+                <h4>Speaker Notes</h4>
+                <p>Encourage participants to review pre-reading materials before Day 2.</p>
+            </div>
+        </div>
+
+        <!-- Slide 33: Thank You -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Thank You!</h1>
+            <p class="slide-subtitle">See you on Day 2</p>
+            <p style="margin-top: 40px; color: #666;">Questions? Reach out to your trainer.</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 33</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+        let currentSlide = 0;
+        let notesVisible = false;
+
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= slides.length) index = slides.length - 1;
+
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                    animateBullets(slide);
+                }
+            });
+
+            currentSlide = index;
+            updateProgress();
+        }
+
+        function animateBullets(slide) {
+            const bullets = slide.querySelectorAll('.bullet-list li');
+            bullets.forEach((bullet, i) => {
+                bullet.classList.remove('visible');
+                setTimeout(() => {
+                    bullet.classList.add('visible');
+                }, 150 * i);
+            });
+        }
+
+        function updateProgress() {
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function toggleNotes() {
+            notesVisible = !notesVisible;
+            document.querySelectorAll('.speaker-notes').forEach(note => {
+                note.classList.toggle('visible', notesVisible);
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                case 'ArrowDown':
+                case ' ':
+                    showSlide(currentSlide + 1);
+                    break;
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                    showSlide(currentSlide - 1);
+                    break;
+                case 'Home':
+                    showSlide(0);
+                    break;
+                case 'End':
+                    showSlide(slides.length - 1);
+                    break;
+                case 'n':
+                case 'N':
+                    toggleNotes();
+                    break;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const x = e.clientX;
+            const width = window.innerWidth;
+            if (x > width / 2) {
+                showSlide(currentSlide + 1);
+            } else {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

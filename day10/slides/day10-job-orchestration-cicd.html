@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 10: Job Orchestration & CI/CD | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 0.95em; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .four-column { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 30px; }
+        .flow-diagram { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
+        .flow-box { background: rgba(255, 107, 53, 0.2); border: 2px solid #FF6B35; border-radius: 8px; padding: 15px 20px; text-align: center; min-width: 100px; }
+        .flow-arrow { font-size: 1.5em; color: #FF3621; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 10 of 13</div>
+            <h1 class="slide-title">Job Orchestration & CI/CD</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Databricks Jobs Overview (30 min)</li>
+                <li>Workflows & Task Orchestration (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Job Triggers & Scheduling (30 min)</li>
+                <li>CI/CD Integration Patterns (30 min)</li>
+                <li>Hands-on Lab: Create & Schedule Jobs (45 min)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Databricks Jobs Overview -->
+        <div class="slide">
+            <h1 class="slide-title">What are Databricks Jobs?</h1>
+            <div class="highlight-box">
+                <p><strong>Databricks Jobs</strong> are the mechanism for running notebooks, Python scripts, JARs, and other code on a scheduled or triggered basis.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Production workload execution</li>
+                <li>Scheduled or triggered runs</li>
+                <li>Automatic cluster management</li>
+                <li>Built-in monitoring and alerts</li>
+                <li>Retry and failure handling</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Job Types -->
+        <div class="slide">
+            <h1 class="slide-title">Job Task Types</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Notebook</h4>
+                    <ul>
+                        <li>Run Databricks notebooks</li>
+                        <li>Pass parameters</li>
+                        <li>Support all languages</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Python Script</h4>
+                    <ul>
+                        <li>Run .py files from repos</li>
+                        <li>Command-line args</li>
+                        <li>Wheel packages</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>JAR/Spark Submit</h4>
+                    <ul>
+                        <li>Java/Scala applications</li>
+                        <li>Main class execution</li>
+                        <li>Library dependencies</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="three-column" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h4>SQL</h4>
+                    <ul>
+                        <li>Run SQL queries</li>
+                        <li>SQL warehouse or cluster</li>
+                        <li>Dashboard refresh</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>dbt</h4>
+                    <ul>
+                        <li>Run dbt projects</li>
+                        <li>Transformation pipelines</li>
+                        <li>Native integration</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Delta Live Tables</h4>
+                    <ul>
+                        <li>Run DLT pipelines</li>
+                        <li>Declarative ETL</li>
+                        <li>Quality enforcement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Workflows -->
+        <div class="slide">
+            <h1 class="slide-title">Workflows: Multi-Task Jobs</h1>
+            <div class="highlight-box">
+                <p><strong>Workflows</strong> orchestrate multiple tasks with dependencies, enabling complex data pipelines within a single job.</p>
+            </div>
+            <div class="flow-diagram">
+                <div class="flow-box">Extract</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Transform</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Load</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box" style="background: rgba(255,54,33,0.3);">Report</div>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Define task dependencies (DAG)</li>
+                <li>Parallel and sequential execution</li>
+                <li>Shared job parameters</li>
+                <li>Unified monitoring</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Task Dependencies -->
+        <div class="slide">
+            <h1 class="slide-title">Task Dependencies</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Dependency Types</div>
+                    <ul class="bullet-list">
+                        <li><strong>Sequential</strong> – A → B → C</li>
+                        <li><strong>Parallel</strong> – A, B run together</li>
+                        <li><strong>Fan-out</strong> – One to many</li>
+                        <li><strong>Fan-in</strong> – Many to one</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Example DAG</div>
+                    <div class="code-block" style="font-size: 0.9em;">
+Extract_Sales ─────┐<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─→ Join ─→ Report<br>
+Extract_Products ──┘
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Job Clusters -->
+        <div class="slide">
+            <h1 class="slide-title">Job Clusters</h1>
+            <table>
+                <tr>
+                    <th>Option</th>
+                    <th>Description</th>
+                    <th>Use Case</th>
+                </tr>
+                <tr>
+                    <td>New Job Cluster</td>
+                    <td>Created per run, terminated after</td>
+                    <td>Production ETL, isolation</td>
+                </tr>
+                <tr>
+                    <td>Existing All-Purpose</td>
+                    <td>Use running cluster</td>
+                    <td>Development, testing</td>
+                </tr>
+                <tr>
+                    <td>Shared Job Cluster</td>
+                    <td>One cluster for multiple tasks</td>
+                    <td>Small tasks, cost savings</td>
+                </tr>
+            </table>
+            <div class="success-box" style="margin-top: 15px;">
+                <p>✓ Use job clusters for production – they ensure isolation and cost efficiency</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Triggers -->
+        <div class="slide">
+            <h1 class="slide-title">Job Triggers</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Scheduled</h4>
+                    <ul>
+                        <li>Cron expressions</li>
+                        <li>Time-based triggers</li>
+                        <li>Timezone aware</li>
+                        <li>Recurring runs</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>File Arrival</h4>
+                    <ul>
+                        <li>Trigger on new files</li>
+                        <li>Cloud storage paths</li>
+                        <li>Pattern matching</li>
+                        <li>Continuous mode</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Continuous</h4>
+                    <ul>
+                        <li>Always running</li>
+                        <li>Streaming workloads</li>
+                        <li>Auto-restart</li>
+                        <li>Real-time processing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Schedule Configuration -->
+        <div class="slide">
+            <h1 class="slide-title">Schedule Configuration</h1>
+            <div class="code-block">
+# Cron expression format<br>
+# ┌───────────── minute (0-59)<br>
+# │ ┌───────────── hour (0-23)<br>
+# │ │ ┌───────────── day of month (1-31)<br>
+# │ │ │ ┌───────────── month (1-12)<br>
+# │ │ │ │ ┌───────────── day of week (0-6, Sun=0)<br>
+# * * * * *<br><br>
+Examples:<br>
+"0 8 * * *"      # Daily at 8:00 AM<br>
+"0 0 * * 0"      # Weekly on Sunday midnight<br>
+"0 */2 * * *"    # Every 2 hours<br>
+"0 9 1 * *"      # Monthly on 1st at 9 AM
+            </div>
+        </div>
+
+        <!-- Slide 10: File Arrival Trigger -->
+        <div class="slide">
+            <h1 class="slide-title">File Arrival Trigger</h1>
+            <div class="highlight-box">
+                <p>Automatically trigger jobs when new files arrive in cloud storage locations.</p>
+            </div>
+            <div class="code-block" style="margin-top: 20px;">
+{<br>
+&nbsp;&nbsp;"file_arrival": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"url": "s3://my-bucket/incoming/",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"min_time_between_triggers_seconds": 60,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"wait_after_last_change_seconds": 30<br>
+&nbsp;&nbsp;}<br>
+}
+            </div>
+            <ul class="bullet-list" style="margin-top: 15px;">
+                <li>S3, ADLS, GCS supported</li>
+                <li>Configurable polling interval</li>
+                <li>Debounce for batch arrivals</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: Job Parameters -->
+        <div class="slide">
+            <h1 class="slide-title">Job Parameters</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Static Parameters</div>
+                    <div class="code-block" style="font-size: 0.9em;">
+{<br>
+&nbsp;&nbsp;"parameters": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"env": "production",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"table": "sales"<br>
+&nbsp;&nbsp;}<br>
+}
+                    </div>
+                </div>
+                <div>
+                    <div class="column-title">Dynamic Values</div>
+                    <div class="code-block" style="font-size: 0.9em;">
+{{job.run_id}}<br>
+{{job.id}}<br>
+{{task.name}}<br>
+{{start_date}}<br>
+{{start_time}}
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top: 20px; font-size: 1.1em;">Access in notebooks: <code>dbutils.widgets.get("env")</code></p>
+        </div>
+
+        <!-- Slide 12: Retry & Failure Handling -->
+        <div class="slide">
+            <h1 class="slide-title">Retry & Failure Handling</h1>
+            <table>
+                <tr>
+                    <th>Setting</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>max_retries</td>
+                    <td>Number of retry attempts (0-10)</td>
+                </tr>
+                <tr>
+                    <td>min_retry_interval</td>
+                    <td>Wait time between retries</td>
+                </tr>
+                <tr>
+                    <td>retry_on_timeout</td>
+                    <td>Retry if task times out</td>
+                </tr>
+                <tr>
+                    <td>timeout_seconds</td>
+                    <td>Maximum task duration</td>
+                </tr>
+            </table>
+            <div class="code-block" style="margin-top: 15px;">
+"max_retries": 3,<br>
+"min_retry_interval_millis": 60000,<br>
+"retry_on_timeout": true
+            </div>
+        </div>
+
+        <!-- Slide 13: Alerts & Notifications -->
+        <div class="slide">
+            <h1 class="slide-title">Alerts & Notifications</h1>
+            <ul class="bullet-list">
+                <li>Email notifications on start/success/failure</li>
+                <li>Webhook integration for custom systems</li>
+                <li>Slack, PagerDuty, Teams integrations</li>
+                <li>Configure per-job or per-task alerts</li>
+            </ul>
+            <div class="code-block" style="margin-top: 20px;">
+"email_notifications": {<br>
+&nbsp;&nbsp;"on_start": ["team@company.com"],<br>
+&nbsp;&nbsp;"on_success": ["reports@company.com"],<br>
+&nbsp;&nbsp;"on_failure": ["oncall@company.com"]<br>
+}
+            </div>
+        </div>
+
+        <!-- Slide 14: Job Permissions -->
+        <div class="slide">
+            <h1 class="slide-title">Job Permissions</h1>
+            <table>
+                <tr>
+                    <th>Permission</th>
+                    <th>Capabilities</th>
+                </tr>
+                <tr>
+                    <td>CAN_VIEW</td>
+                    <td>View job details and run history</td>
+                </tr>
+                <tr>
+                    <td>CAN_MANAGE_RUN</td>
+                    <td>View + trigger and cancel runs</td>
+                </tr>
+                <tr>
+                    <td>IS_OWNER</td>
+                    <td>Full control including edit and delete</td>
+                </tr>
+                <tr>
+                    <td>CAN_MANAGE</td>
+                    <td>Edit job configuration</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 15: Run As Configuration -->
+        <div class="slide">
+            <h1 class="slide-title">Run As Configuration</h1>
+            <div class="highlight-box">
+                <p><strong>Run As</strong> determines which identity executes the job, affecting data access permissions.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Service Principal</div>
+                    <ul class="bullet-list">
+                        <li>Recommended for production</li>
+                        <li>Consistent permissions</li>
+                        <li>No user dependency</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">User Identity</div>
+                    <ul class="bullet-list">
+                        <li>Runs as job owner</li>
+                        <li>Development/testing</li>
+                        <li>User-specific access</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: CI/CD Overview -->
+        <div class="slide">
+            <h1 class="slide-title">CI/CD for Databricks</h1>
+            <div class="highlight-box">
+                <p><strong>CI/CD</strong> enables automated testing, deployment, and promotion of Databricks assets across environments.</p>
+            </div>
+            <div class="flow-diagram">
+                <div class="flow-box">Code</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Build</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Test</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Deploy</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box" style="background: rgba(255,54,33,0.3);">Production</div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Databricks Asset Bundles -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Asset Bundles (DABs)</h1>
+            <ul class="bullet-list">
+                <li>Infrastructure as Code for Databricks</li>
+                <li>Define jobs, pipelines, clusters in YAML</li>
+                <li>Environment-specific configurations</li>
+                <li>Version control friendly</li>
+                <li>CLI-based deployment</li>
+            </ul>
+            <div class="code-block" style="margin-top: 15px;">
+# databricks.yml<br>
+bundle:<br>
+&nbsp;&nbsp;name: my-etl-pipeline<br><br>
+resources:<br>
+&nbsp;&nbsp;jobs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;daily_etl:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: "Daily ETL Job"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schedule:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quartz_cron_expression: "0 0 8 * * ?"
+            </div>
+        </div>
+
+        <!-- Slide 18: DABs Environments -->
+        <div class="slide">
+            <h1 class="slide-title">DABs Environments</h1>
+            <div class="code-block">
+# databricks.yml<br>
+targets:<br>
+&nbsp;&nbsp;dev:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workspace:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host: https://dev.cloud.databricks.com<br>
+&nbsp;&nbsp;&nbsp;&nbsp;variables:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catalog: dev_catalog<br><br>
+&nbsp;&nbsp;prod:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workspace:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host: https://prod.cloud.databricks.com<br>
+&nbsp;&nbsp;&nbsp;&nbsp;variables:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catalog: prod_catalog
+            </div>
+            <div class="code-block" style="margin-top: 15px;">
+databricks bundle deploy --target dev<br>
+databricks bundle deploy --target prod
+            </div>
+        </div>
+
+        <!-- Slide 19: CI/CD Tools Integration -->
+        <div class="slide">
+            <h1 class="slide-title">CI/CD Tool Integration</h1>
+            <div class="four-column">
+                <div class="info-card">
+                    <h4>GitHub Actions</h4>
+                    <ul>
+                        <li>Databricks CLI action</li>
+                        <li>Asset bundle deploy</li>
+                        <li>Test automation</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Azure DevOps</h4>
+                    <ul>
+                        <li>Pipeline tasks</li>
+                        <li>Service connections</li>
+                        <li>Release gates</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Jenkins</h4>
+                    <ul>
+                        <li>CLI integration</li>
+                        <li>Pipeline scripts</li>
+                        <li>Multi-branch</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>GitLab CI</h4>
+                    <ul>
+                        <li>YAML pipelines</li>
+                        <li>Environments</li>
+                        <li>Approvals</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: GitHub Actions Example -->
+        <div class="slide">
+            <h1 class="slide-title">GitHub Actions Example</h1>
+            <div class="code-block" style="font-size: 0.85em;">
+name: Deploy to Databricks<br>
+on:<br>
+&nbsp;&nbsp;push:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;branches: [main]<br><br>
+jobs:<br>
+&nbsp;&nbsp;deploy:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/checkout@v3<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- uses: databricks/setup-cli@main<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- run: databricks bundle deploy --target prod<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATABRICKS_HOST: ${{ secrets.DB_HOST }}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATABRICKS_TOKEN: ${{ secrets.DB_TOKEN }}
+            </div>
+        </div>
+
+        <!-- Slide 21: Git Integration -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Repos</h1>
+            <ul class="bullet-list">
+                <li>Native Git integration in workspace</li>
+                <li>Clone, commit, push, pull from UI</li>
+                <li>Branch management</li>
+                <li>GitHub, GitLab, Azure DevOps, Bitbucket</li>
+                <li>Sync notebooks and files</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ Use Repos to maintain version control for all production code</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Testing Strategies -->
+        <div class="slide">
+            <h1 class="slide-title">Testing Strategies</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Unit Tests</h4>
+                    <ul>
+                        <li>Test functions locally</li>
+                        <li>pytest, unittest</li>
+                        <li>Mock Spark context</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Integration Tests</h4>
+                    <ul>
+                        <li>Test on dev cluster</li>
+                        <li>Real data samples</li>
+                        <li>End-to-end flows</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Data Quality</h4>
+                    <ul>
+                        <li>Expectations</li>
+                        <li>Schema validation</li>
+                        <li>Row count checks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Promotion Strategies -->
+        <div class="slide">
+            <h1 class="slide-title">Environment Promotion</h1>
+            <ul class="bullet-list">
+                <li><strong>Development</strong> → Manual testing, iteration</li>
+                <li><strong>Staging/QA</strong> → Automated tests, validation</li>
+                <li><strong>Production</strong> → Approved deployments only</li>
+            </ul>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ Never deploy directly to production without testing in staging!</p>
+            </div>
+        </div>
+
+        <!-- Slide 24: Best Practices -->
+        <div class="slide">
+            <h1 class="slide-title">Job & CI/CD Best Practices</h1>
+            <ul class="bullet-list">
+                <li>Use <strong>job clusters</strong> for production isolation</li>
+                <li>Configure <strong>alerts</strong> for failures</li>
+                <li>Set appropriate <strong>timeouts</strong> and retries</li>
+                <li>Use <strong>service principals</strong> for Run As</li>
+                <li>Store code in <strong>Git</strong>, deploy via CI/CD</li>
+                <li>Use <strong>Asset Bundles</strong> for reproducibility</li>
+            </ul>
+        </div>
+
+        <!-- Slide 25: Lab Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Hands-On Lab: Create & Schedule Jobs</h1>
+            <div class="highlight-box">
+                <p><strong>Duration:</strong> 45 minutes</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Create a multi-task workflow</li>
+                <li>Configure schedule triggers</li>
+                <li>Set up notifications</li>
+                <li>Create Databricks Asset Bundle</li>
+                <li>Deploy via CLI</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Lab Guide:</strong> LAB_10_Job_Orchestration.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 26: Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Day 10 Summary</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Jobs & Workflows</div>
+                    <ul class="bullet-list">
+                        <li>Multi-task workflows</li>
+                        <li>Triggers and schedules</li>
+                        <li>Retry and alerting</li>
+                        <li>Job permissions</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">CI/CD</div>
+                    <ul class="bullet-list">
+                        <li>Databricks Asset Bundles</li>
+                        <li>Environment promotion</li>
+                        <li>Git integration</li>
+                        <li>Automated deployment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">Coming Up: Day 11</h1>
+            <div class="highlight-box">
+                <p><strong>Monitoring & Troubleshooting</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>System tables for observability</li>
+                <li>Cluster and job monitoring</li>
+                <li>Performance troubleshooting</li>
+                <li>Log analysis techniques</li>
+            </ul>
+        </div>
+
+        <!-- Slide 28: Thank You -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Thank You!</h1>
+            <p style="font-size: 1.5em; color: #888;">See you on Day 11</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 28</div>
+    <div class="nav-hint">← → Navigate</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        function showSlide(n) {
+            if (n < 0) n = 0; if (n >= slides.length) n = slides.length - 1;
+            slides.forEach(s => s.classList.remove('active'));
+            slides[n].classList.add('active');
+            currentSlide = n;
+            document.getElementById('progressBar').style.width = ((n + 1) / slides.length) * 100 + '%';
+            document.getElementById('slideCounter').textContent = `${n + 1} / ${slides.length}`;
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
+            else if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+        });
+        document.addEventListener('click', e => {
+            e.clientX > window.innerWidth / 2 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1);
+        });
+        showSlide(0);
+    </script>
+</body>
+</html>

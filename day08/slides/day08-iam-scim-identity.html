@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 8: IAM, SCIM & Identity Integration | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 1.05em; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .flow-diagram { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
+        .flow-box { background: rgba(255, 107, 53, 0.2); border: 2px solid #FF6B35; border-radius: 8px; padding: 15px 20px; text-align: center; min-width: 120px; }
+        .flow-arrow { font-size: 1.5em; color: #FF3621; }
+        .four-column { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 8 of 13</div>
+            <h1 class="slide-title">IAM, SCIM & Identity Integration</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Identity Management Overview (30 min)</li>
+                <li>Identity Federation & SSO (45 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>SCIM Provisioning Deep Dive (45 min)</li>
+                <li>Service Principals & API Auth (30 min)</li>
+                <li>Hands-on Lab: Identity Configuration (45 min)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Identity Management Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Identity Management in Databricks</h1>
+            <div class="highlight-box">
+                <p><strong>Challenge:</strong> Manage thousands of users across multiple workspaces with consistent access controls and automated provisioning.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Single Sign-On (SSO)</strong> – Authenticate via corporate IdP</li>
+                <li><strong>SCIM</strong> – Automated user/group provisioning</li>
+                <li><strong>Service Principals</strong> – Non-human identities for automation</li>
+                <li><strong>Unity Catalog</strong> – Centralized identity-based access control</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Identity Types -->
+        <div class="slide">
+            <h1 class="slide-title">Identity Types</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Users</h4>
+                    <ul>
+                        <li>Human identities</li>
+                        <li>Email as unique ID</li>
+                        <li>Interactive login</li>
+                        <li>SSO authentication</li>
+                        <li>Personal access tokens</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Groups</h4>
+                    <ul>
+                        <li>Collections of users</li>
+                        <li>Nested groups supported</li>
+                        <li>Permission inheritance</li>
+                        <li>Synced via SCIM</li>
+                        <li>Account or workspace level</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Service Principals</h4>
+                    <ul>
+                        <li>Non-human identities</li>
+                        <li>For automation/CI-CD</li>
+                        <li>OAuth authentication</li>
+                        <li>Managed credentials</li>
+                        <li>No interactive login</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Account vs Workspace Identity -->
+        <div class="slide">
+            <h1 class="slide-title">Account vs Workspace Identity</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Account-Level (Preferred)</div>
+                    <ul class="bullet-list">
+                        <li>Single source of truth</li>
+                        <li>Manage in Account Console</li>
+                        <li>Assign to multiple workspaces</li>
+                        <li>Required for Unity Catalog</li>
+                        <li>SCIM syncs to account level</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Workspace-Level (Legacy)</div>
+                    <ul class="bullet-list">
+                        <li>Isolated per workspace</li>
+                        <li>No cross-workspace access</li>
+                        <li>Manual management</li>
+                        <li>Being deprecated</li>
+                        <li>Migrate to account level</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Identity Federation -->
+        <div class="slide">
+            <h1 class="slide-title">Identity Federation</h1>
+            <div class="highlight-box">
+                <p><strong>Identity Federation</strong> allows users to authenticate with Databricks using their existing corporate identity provider (IdP).</p>
+            </div>
+            <div class="flow-diagram">
+                <div class="flow-box">User</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Corporate IdP<br>(Okta, Azure AD, etc.)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box" style="background: rgba(255,54,33,0.3);">Databricks</div>
+            </div>
+            <ul class="bullet-list">
+                <li>No separate Databricks passwords</li>
+                <li>Centralized access control</li>
+                <li>MFA from corporate policy</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Supported Identity Providers -->
+        <div class="slide">
+            <h1 class="slide-title">Supported Identity Providers</h1>
+            <div class="four-column">
+                <div class="info-card">
+                    <h4>Enterprise IdPs</h4>
+                    <ul>
+                        <li>Microsoft Entra ID</li>
+                        <li>Okta</li>
+                        <li>Ping Identity</li>
+                        <li>OneLogin</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Cloud Providers</h4>
+                    <ul>
+                        <li>AWS IAM Identity Center</li>
+                        <li>Google Workspace</li>
+                        <li>Azure AD B2C</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Standards</h4>
+                    <ul>
+                        <li>SAML 2.0</li>
+                        <li>OpenID Connect</li>
+                        <li>OAuth 2.0</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>JIT provisioning</li>
+                        <li>Group sync</li>
+                        <li>Attribute mapping</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: SSO Authentication Flow -->
+        <div class="slide">
+            <h1 class="slide-title">SSO Authentication Flow</h1>
+            <div class="flow-diagram" style="flex-direction: column; gap: 25px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="flow-box" style="width: 150px;">1. User visits Databricks</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="width: 200px;">2. Redirect to IdP login</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="flow-box" style="width: 200px;">3. User authenticates with IdP</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="width: 200px;">4. IdP sends SAML assertion</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="flow-box" style="width: 200px;">5. Databricks validates assertion</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="width: 150px; background: rgba(255,54,33,0.3);">6. User logged in</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: SSO Configuration Steps -->
+        <div class="slide">
+            <h1 class="slide-title">SSO Configuration Steps</h1>
+            <ul class="bullet-list">
+                <li><strong>Step 1:</strong> In Account Console → Settings → Single sign-on</li>
+                <li><strong>Step 2:</strong> Download Databricks SAML metadata</li>
+                <li><strong>Step 3:</strong> Create application in your IdP</li>
+                <li><strong>Step 4:</strong> Upload IdP metadata to Databricks</li>
+                <li><strong>Step 5:</strong> Configure attribute mappings</li>
+                <li><strong>Step 6:</strong> Test and enable SSO</li>
+            </ul>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ <strong>Always keep a backup admin with password login during SSO setup!</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 10: SAML Attribute Mapping -->
+        <div class="slide">
+            <h1 class="slide-title">SAML Attribute Mapping</h1>
+            <table>
+                <tr>
+                    <th>Databricks Attribute</th>
+                    <th>IdP Attribute Example</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td>email (required)</td>
+                    <td>user.email</td>
+                    <td>User identifier</td>
+                </tr>
+                <tr>
+                    <td>displayName</td>
+                    <td>user.displayName</td>
+                    <td>Display in UI</td>
+                </tr>
+                <tr>
+                    <td>userName</td>
+                    <td>user.userPrincipalName</td>
+                    <td>Login name</td>
+                </tr>
+                <tr>
+                    <td>groups</td>
+                    <td>user.groups</td>
+                    <td>Group membership (JIT)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 11: What is SCIM? -->
+        <div class="slide">
+            <h1 class="slide-title">What is SCIM?</h1>
+            <div class="highlight-box">
+                <p><strong>SCIM</strong> (System for Cross-domain Identity Management) is an open standard for automating user provisioning and deprovisioning.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Automatic user creation when added in IdP</li>
+                <li>Automatic deactivation when removed in IdP</li>
+                <li>Group membership synchronization</li>
+                <li>Real-time or scheduled sync</li>
+                <li>RESTful API for identity management</li>
+            </ul>
+        </div>
+
+        <!-- Slide 12: SCIM Benefits -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Benefits</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Without SCIM</div>
+                    <ul class="bullet-list">
+                        <li>Manual user creation</li>
+                        <li>Forgotten deprovisioning</li>
+                        <li>Group sync errors</li>
+                        <li>Security gaps</li>
+                        <li>Admin overhead</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">With SCIM</div>
+                    <ul class="bullet-list">
+                        <li>Automatic provisioning</li>
+                        <li>Immediate deactivation</li>
+                        <li>Groups always current</li>
+                        <li>Consistent security</li>
+                        <li>Reduced admin work</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: SCIM Architecture -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Architecture</h1>
+            <div class="flow-diagram">
+                <div class="flow-box" style="background: rgba(255,54,33,0.3);">Identity Provider<br>(IdP)</div>
+                <div class="flow-arrow">→ SCIM API →</div>
+                <div class="flow-box">Databricks<br>Account</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box" style="background: rgba(255,255,255,0.1);">Workspaces</div>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>IdP pushes changes to Databricks SCIM endpoint</li>
+                <li>Account-level provisioning (recommended)</li>
+                <li>Users/groups auto-available in workspaces</li>
+                <li>Unity Catalog uses account identities</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: SCIM Configuration -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Configuration</h1>
+            <ul class="bullet-list">
+                <li><strong>Step 1:</strong> Account Console → Settings → User provisioning</li>
+                <li><strong>Step 2:</strong> Enable SCIM provisioning</li>
+                <li><strong>Step 3:</strong> Generate SCIM token</li>
+                <li><strong>Step 4:</strong> Copy SCIM endpoint URL</li>
+                <li><strong>Step 5:</strong> Configure IdP with endpoint and token</li>
+                <li><strong>Step 6:</strong> Assign users/groups in IdP</li>
+            </ul>
+            <div class="code-block" style="margin-top: 20px;">
+SCIM Endpoint: https://accounts.cloud.databricks.com/api/2.0/accounts/{account_id}/scim/v2<br>
+Authorization: Bearer {scim_token}
+            </div>
+        </div>
+
+        <!-- Slide 15: SCIM with Okta -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Setup: Okta Example</h1>
+            <ul class="bullet-list">
+                <li>Add Databricks app from Okta catalog</li>
+                <li>Configure SCIM connector:
+                    <ul class="bullet-list">
+                        <li class="sub-item">SCIM Base URL from Databricks</li>
+                        <li class="sub-item">Bearer token authentication</li>
+                        <li class="sub-item">Unique identifier: userName</li>
+                    </ul>
+                </li>
+                <li>Enable provisioning features:
+                    <ul class="bullet-list">
+                        <li class="sub-item">Create Users</li>
+                        <li class="sub-item">Update User Attributes</li>
+                        <li class="sub-item">Deactivate Users</li>
+                        <li class="sub-item">Push Groups</li>
+                    </ul>
+                </li>
+                <li>Assign users and groups to the app</li>
+            </ul>
+        </div>
+
+        <!-- Slide 16: SCIM with Azure AD -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Setup: Microsoft Entra ID</h1>
+            <ul class="bullet-list">
+                <li>Add Databricks from Enterprise Applications</li>
+                <li>Configure Provisioning → Automatic:
+                    <ul class="bullet-list">
+                        <li class="sub-item">Tenant URL: SCIM endpoint</li>
+                        <li class="sub-item">Secret Token: SCIM token</li>
+                    </ul>
+                </li>
+                <li>Configure attribute mappings</li>
+                <li>Enable provisioning status</li>
+                <li>Assign users and groups</li>
+            </ul>
+            <div class="warning-box" style="margin-top: 15px;">
+                <p>⚠️ Azure AD syncs every 40 minutes. Use "Provision on demand" for immediate sync.</p>
+            </div>
+        </div>
+
+        <!-- Slide 17: SCIM Troubleshooting -->
+        <div class="slide">
+            <h1 class="slide-title">SCIM Troubleshooting</h1>
+            <table>
+                <tr>
+                    <th>Issue</th>
+                    <th>Common Cause</th>
+                    <th>Solution</th>
+                </tr>
+                <tr>
+                    <td>Users not syncing</td>
+                    <td>Not assigned to app in IdP</td>
+                    <td>Assign users/groups to app</td>
+                </tr>
+                <tr>
+                    <td>401 Unauthorized</td>
+                    <td>Invalid/expired token</td>
+                    <td>Regenerate SCIM token</td>
+                </tr>
+                <tr>
+                    <td>Groups not appearing</td>
+                    <td>Push Groups not enabled</td>
+                    <td>Enable group provisioning</td>
+                </tr>
+                <tr>
+                    <td>Duplicate users</td>
+                    <td>Email mismatch</td>
+                    <td>Ensure consistent email format</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 18: Service Principals -->
+        <div class="slide">
+            <h1 class="slide-title">Service Principals</h1>
+            <div class="highlight-box">
+                <p><strong>Service Principals</strong> are non-human identities used for automated processes, CI/CD pipelines, and service-to-service authentication.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>No interactive login capability</li>
+                <li>Authenticate via OAuth or tokens</li>
+                <li>Managed credentials (no password rotation)</li>
+                <li>Can be members of groups</li>
+                <li>Full Unity Catalog support</li>
+            </ul>
+        </div>
+
+        <!-- Slide 19: When to Use Service Principals -->
+        <div class="slide">
+            <h1 class="slide-title">When to Use Service Principals</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>CI/CD Pipelines</h4>
+                    <ul>
+                        <li>Deploy notebooks</li>
+                        <li>Run automated tests</li>
+                        <li>Manage infrastructure</li>
+                        <li>GitHub Actions, Azure DevOps</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Scheduled Jobs</h4>
+                    <ul>
+                        <li>ETL pipelines</li>
+                        <li>Data processing</li>
+                        <li>ML training jobs</li>
+                        <li>Report generation</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>External Apps</h4>
+                    <ul>
+                        <li>BI tool connections</li>
+                        <li>Custom applications</li>
+                        <li>Partner integrations</li>
+                        <li>API consumers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Creating Service Principals -->
+        <div class="slide">
+            <h1 class="slide-title">Creating Service Principals</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Via Account Console</div>
+                    <ul class="bullet-list">
+                        <li>Settings → Service principals</li>
+                        <li>Add service principal</li>
+                        <li>Enter display name</li>
+                        <li>Add to groups</li>
+                        <li>Assign to workspaces</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Via API</div>
+                    <div class="code-block" style="font-size: 0.9em;">
+POST /api/2.0/accounts/{id}/scim/v2/ServicePrincipals<br><br>
+{<br>
+&nbsp;&nbsp;"displayName": "ci-cd-pipeline",<br>
+&nbsp;&nbsp;"entitlements": [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{"value": "workspace-access"}<br>
+&nbsp;&nbsp;]<br>
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Service Principal Authentication -->
+        <div class="slide">
+            <h1 class="slide-title">Service Principal Authentication</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">OAuth M2M (Recommended)</div>
+                    <div class="code-block" style="font-size: 0.85em;">
+# Generate OAuth token<br>
+curl -X POST \<br>
+&nbsp;&nbsp;https://accounts.cloud.databricks.com/oidc/accounts/{id}/v1/token \<br>
+&nbsp;&nbsp;-d "grant_type=client_credentials" \<br>
+&nbsp;&nbsp;-d "client_id={sp_client_id}" \<br>
+&nbsp;&nbsp;-d "client_secret={sp_secret}" \<br>
+&nbsp;&nbsp;-d "scope=all-apis"
+                    </div>
+                </div>
+                <div>
+                    <div class="column-title">Personal Access Token</div>
+                    <div class="code-block" style="font-size: 0.85em;">
+# Create PAT for service principal<br>
+# (via workspace admin console<br>
+# or API)<br><br>
+Authorization: Bearer dapi...
+                    </div>
+                    <p style="margin-top: 15px; font-size: 0.95em;">PATs are simpler but require manual rotation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: OAuth Secrets Management -->
+        <div class="slide">
+            <h1 class="slide-title">OAuth Secrets Management</h1>
+            <ul class="bullet-list">
+                <li>Generate secrets in Account Console or API</li>
+                <li>Multiple secrets per service principal (rotation)</li>
+                <li>Set expiration dates</li>
+                <li>Store secrets securely (vault, secrets manager)</li>
+                <li>Never commit secrets to code repos</li>
+            </ul>
+            <div class="code-block" style="margin-top: 20px;">
+# Generate new OAuth secret<br>
+POST /api/2.0/accounts/{account_id}/servicePrincipals/{sp_id}/credentials/secrets<br><br>
+# Returns client_id and client_secret
+            </div>
+        </div>
+
+        <!-- Slide 23: Service Principal Best Practices -->
+        <div class="slide">
+            <h1 class="slide-title">Service Principal Best Practices</h1>
+            <ul class="bullet-list">
+                <li><strong>One SP per use case</strong> – Don't share across pipelines</li>
+                <li><strong>Least privilege</strong> – Grant minimum required access</li>
+                <li><strong>Use groups</strong> – Manage permissions via group membership</li>
+                <li><strong>Rotate credentials</strong> – Regular secret rotation schedule</li>
+                <li><strong>Audit usage</strong> – Monitor SP activity in audit logs</li>
+                <li><strong>Use OAuth M2M</strong> – Prefer over PATs for better security</li>
+            </ul>
+        </div>
+
+        <!-- Slide 24: Personal Access Tokens -->
+        <div class="slide">
+            <h1 class="slide-title">Personal Access Tokens (PATs)</h1>
+            <ul class="bullet-list">
+                <li>Bearer tokens for API authentication</li>
+                <li>Created per user or service principal</li>
+                <li>Configurable lifetime (expiration)</li>
+                <li>Admin can control:
+                    <ul class="bullet-list">
+                        <li class="sub-item">Maximum token lifetime</li>
+                        <li class="sub-item">Who can create tokens</li>
+                        <li class="sub-item">Token revocation</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="warning-box" style="margin-top: 15px;">
+                <p>⚠️ PATs act with full permissions of the user. Treat as sensitive credentials!</p>
+            </div>
+        </div>
+
+        <!-- Slide 25: Token Management Policies -->
+        <div class="slide">
+            <h1 class="slide-title">Token Management Policies</h1>
+            <div class="code-block">
+# Set workspace token policies (Admin Console or API)<br><br>
+{<br>
+&nbsp;&nbsp;"max_token_lifetime_days": 90,<br>
+&nbsp;&nbsp;"comment_required": true,<br>
+&nbsp;&nbsp;"enable_token_permission_enforcement": true<br>
+}
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Enforce maximum token lifetime</li>
+                <li>Require comments for audit trail</li>
+                <li>Restrict token creation to specific users</li>
+                <li>Monitor token creation in audit logs</li>
+            </ul>
+        </div>
+
+        <!-- Slide 26: Identity Integration Architecture -->
+        <div class="slide">
+            <h1 class="slide-title">Complete Identity Architecture</h1>
+            <div class="flow-diagram" style="flex-direction: column; gap: 20px;">
+                <div style="display: flex; gap: 30px; justify-content: center;">
+                    <div class="flow-box" style="background: rgba(255,54,33,0.3);">Corporate IdP<br>(Okta, Azure AD)</div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <div class="flow-arrow">↓ SSO</div>
+                    <div class="flow-arrow">↓ SCIM</div>
+                </div>
+                <div class="flow-box" style="width: 300px;">Databricks Account<br>(Users, Groups, Service Principals)</div>
+                <div class="flow-arrow">↓</div>
+                <div style="display: flex; gap: 20px; justify-content: center;">
+                    <div class="flow-box" style="background: rgba(255,255,255,0.1);">Workspace 1</div>
+                    <div class="flow-box" style="background: rgba(255,255,255,0.1);">Workspace 2</div>
+                    <div class="flow-box" style="background: rgba(255,255,255,0.1);">Workspace N</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Migration to Account-Level Identity -->
+        <div class="slide">
+            <h1 class="slide-title">Migration to Account-Level Identity</h1>
+            <ul class="bullet-list">
+                <li><strong>Step 1:</strong> Enable identity federation at account level</li>
+                <li><strong>Step 2:</strong> Configure SCIM to provision to account</li>
+                <li><strong>Step 3:</strong> Upgrade workspace to use account users</li>
+                <li><strong>Step 4:</strong> Migrate workspace-level users to account</li>
+                <li><strong>Step 5:</strong> Update workspace permissions</li>
+                <li><strong>Step 6:</strong> Validate Unity Catalog access</li>
+            </ul>
+            <div class="warning-box" style="margin-top: 15px;">
+                <p>⚠️ Plan migration carefully. Test in non-production first!</p>
+            </div>
+        </div>
+
+        <!-- Slide 28: Security Checklist -->
+        <div class="slide">
+            <h1 class="slide-title">Identity Security Checklist</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Authentication</div>
+                    <ul class="bullet-list">
+                        <li>☐ SSO enabled and tested</li>
+                        <li>☐ MFA enforced at IdP</li>
+                        <li>☐ Password login disabled</li>
+                        <li>☐ Session timeout configured</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Provisioning</div>
+                    <ul class="bullet-list">
+                        <li>☐ SCIM configured</li>
+                        <li>☐ Group sync enabled</li>
+                        <li>☐ Deprovisioning tested</li>
+                        <li>☐ Token policies set</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 29: Lab Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Hands-On Lab: Identity Configuration</h1>
+            <div class="highlight-box">
+                <p><strong>Duration:</strong> 45 minutes</p>
+            </div>
+            <ul class="bullet-list">
+                <li>Explore Account Console identity settings</li>
+                <li>Create and configure groups</li>
+                <li>Create a service principal</li>
+                <li>Generate OAuth credentials</li>
+                <li>Test API authentication</li>
+                <li>Review identity-related audit logs</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Lab Guide:</strong> LAB_08_Identity_Configuration.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 30: Summary -->
+        <div class="slide">
+            <h1 class="slide-title">Day 8 Summary</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Key Concepts</div>
+                    <ul class="bullet-list">
+                        <li>Account vs workspace identity</li>
+                        <li>SSO with SAML/OIDC</li>
+                        <li>SCIM provisioning</li>
+                        <li>Service principals</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Best Practices</div>
+                    <ul class="bullet-list">
+                        <li>Use account-level identity</li>
+                        <li>Configure SCIM for automation</li>
+                        <li>Use OAuth M2M for SPs</li>
+                        <li>Enforce token policies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 31: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">Coming Up: Day 9</h1>
+            <div class="highlight-box">
+                <p><strong>Cluster & SQL Warehouse Administration</strong></p>
+            </div>
+            <ul class="bullet-list">
+                <li>Cluster types and configurations</li>
+                <li>Cluster policies</li>
+                <li>SQL Warehouses for BI</li>
+                <li>Autoscaling and cost optimization</li>
+            </ul>
+        </div>
+
+        <!-- Slide 32: Thank You -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Thank You!</h1>
+            <p style="font-size: 1.5em; color: #888;">See you on Day 9</p>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 32</div>
+    <div class="nav-hint">← → Navigate | N: Notes</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        function showSlide(n) {
+            if (n < 0) n = 0; if (n >= slides.length) n = slides.length - 1;
+            slides.forEach(s => s.classList.remove('active'));
+            slides[n].classList.add('active');
+            currentSlide = n;
+            document.getElementById('progressBar').style.width = ((n + 1) / slides.length) * 100 + '%';
+            document.getElementById('slideCounter').textContent = `${n + 1} / ${slides.length}`;
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
+            else if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+        });
+        document.addEventListener('click', e => {
+            e.clientX > window.innerWidth / 2 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1);
+        });
+        showSlide(0);
+    </script>
+</body>
+</html>
