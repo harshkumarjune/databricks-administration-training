@@ -8,37 +8,46 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
         .slide-container { width: 100vw; height: 100vh; color: #fff; }
-        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; animation: fadeIn 0.5s ease; }
         .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .bullet-list { list-style: none; }
-        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; line-height: 1.5; }
         .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
         .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
         .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
         .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
-        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; font-weight: 600; }
         .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
-        .highlight-box p { font-size: 1.2em; }
-        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
-        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .highlight-box p { font-size: 1.2em; line-height: 1.6; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.2em; line-height: 1.6; color: #ffc107; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); transition: width 0.3s; }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; font-size: 0.9em; }
         .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
         .title-slide { justify-content: center; align-items: center; text-align: center; }
         .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
-        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; font-size: 1.1em; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
-        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; font-weight: 600; }
         .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
         .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
-        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; font-size: 1.2em; }
         .info-card ul { list-style: none; }
-        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 1.1em; }
         .info-card li:last-child { border-bottom: none; }
         .hierarchy { text-align: center; margin: 30px 0; }
-        .hierarchy-level { background: rgba(255, 107, 53, 0.2); border: 2px solid #FF6B35; border-radius: 8px; padding: 15px 30px; margin: 10px auto; display: inline-block; }
+        .hierarchy-level { background: rgba(255, 107, 53, 0.2); border: 2px solid #FF6B35; border-radius: 8px; padding: 15px 30px; margin: 10px auto; display: inline-block; font-size: 1.2em; }
         .hierarchy-arrow { font-size: 1.5em; color: #FF3621; display: block; margin: 5px 0; }
-        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: 'Monaco', 'Consolas', monospace; margin: 15px 0; font-size: 1.1em; line-height: 1.6; }
+        .architecture-diagram { display: flex; justify-content: center; align-items: center; margin: 30px 0; }
+        .arch-box { background: rgba(255,107,53,0.15); border: 2px solid #FF6B35; border-radius: 12px; padding: 20px 30px; margin: 0 15px; text-align: center; }
+        .arch-box h4 { color: #FF6B35; margin-bottom: 10px; }
+        .arch-arrow { font-size: 2em; color: #FF3621; }
+        .section-divider { justify-content: center; align-items: center; text-align: center; background: linear-gradient(135deg, rgba(255,54,33,0.1), rgba(255,107,53,0.1)); }
+        .section-number { font-size: 1.2em; color: #FF6B35; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -48,93 +57,341 @@
             <div class="day-badge">Day 6 of 13</div>
             <h1 class="slide-title">Unity Catalog: Architecture & Setup</h1>
             <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
-            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours</p>
+            <p style="margin-top: 40px; color: #666;">Duration: 3 Hours | Hands-on Lab Included</p>
         </div>
 
-        <!-- Slide 2: Agenda -->
+        <!-- Slide 2: Learning Objectives -->
         <div class="slide">
-            <h1 class="slide-title">Today's Agenda</h1>
+            <h1 class="slide-title">Learning Objectives</h1>
             <ul class="bullet-list">
-                <li>Unity Catalog Architecture (45 min)</li>
-                <li>Metastore, Catalogs, Schemas, Tables (30 min)</li>
-                <li class="sub-item">Break (15 min)</li>
-                <li>Centralized Governance Model (30 min)</li>
-                <li>Hands-on Lab: Configure Unity Catalog (60 min)</li>
+                <li>Understand Unity Catalog architecture and components</li>
+                <li>Configure metastores and workspace bindings</li>
+                <li>Create and manage catalogs, schemas, and tables</li>
+                <li>Configure storage credentials and external locations</li>
+                <li>Distinguish between managed and external tables</li>
+                <li>Navigate the Data Explorer interface</li>
             </ul>
         </div>
 
-        <!-- Slide 3: What is Unity Catalog? -->
+        <!-- Slide 3: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <table>
+                <tr><th>Time</th><th>Topic</th></tr>
+                <tr><td>0:00 - 0:45</td><td>Unity Catalog Architecture Deep Dive</td></tr>
+                <tr><td>0:45 - 1:15</td><td>Metastore Configuration & Workspace Binding</td></tr>
+                <tr><td>1:15 - 1:30</td><td>Break</td></tr>
+                <tr><td>1:30 - 2:00</td><td>Catalogs, Schemas & Object Hierarchy</td></tr>
+                <tr><td>2:00 - 3:00</td><td>Hands-on Lab: Unity Catalog Setup</td></tr>
+            </table>
+        </div>
+
+        <!-- Slide 4: Section 1 Divider -->
+        <div class="slide section-divider">
+            <div class="section-number">Section 1</div>
+            <h1 class="slide-title">Unity Catalog Architecture</h1>
+            <p style="font-size: 1.3em; color: #888;">Understanding the Foundation</p>
+        </div>
+
+        <!-- Slide 5: What is Unity Catalog? -->
         <div class="slide">
             <h1 class="slide-title">What is Unity Catalog?</h1>
             <div class="highlight-box">
-                <p><strong>Unity Catalog</strong> is Databricks' unified governance solution for all data and AI assets, providing centralized access control, auditing, lineage, and discovery.</p>
+                <p><strong>Unity Catalog</strong> is Databricks' unified governance solution for all data and AI assets across clouds and platforms.</p>
             </div>
             <ul class="bullet-list" style="margin-top: 30px;">
-                <li>Centralized metadata and governance</li>
-                <li>Fine-grained access control (tables, columns, rows)</li>
-                <li>Automatic data lineage tracking</li>
-                <li>Cross-workspace data sharing</li>
-                <li>Works with all Databricks workloads</li>
+                <li><strong>Centralized governance</strong> - Single source of truth for metadata</li>
+                <li><strong>Fine-grained access control</strong> - Table, column, and row-level security</li>
+                <li><strong>Automated lineage</strong> - Track data flow across transformations</li>
+                <li><strong>Cross-workspace sharing</strong> - Share data securely across workspaces</li>
+                <li><strong>AI asset management</strong> - Govern models, features, and notebooks</li>
             </ul>
         </div>
 
-        <!-- Slide 4: Three-Level Namespace -->
+        <!-- Slide 6: Before vs After Unity Catalog -->
+        <div class="slide">
+            <h1 class="slide-title">Before vs After Unity Catalog</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Before (Legacy Hive Metastore)</div>
+                    <ul class="bullet-list">
+                        <li>Per-workspace metadata</li>
+                        <li>No cross-workspace sharing</li>
+                        <li>Limited access control</li>
+                        <li>No lineage tracking</li>
+                        <li>Manual auditing</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">After (Unity Catalog)</div>
+                    <ul class="bullet-list">
+                        <li>Centralized metadata</li>
+                        <li>Secure data sharing</li>
+                        <li>Fine-grained permissions</li>
+                        <li>Automatic lineage</li>
+                        <li>Built-in audit logging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Architecture Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Unity Catalog Architecture</h1>
+            <div class="architecture-diagram">
+                <div class="arch-box">
+                    <h4>Account</h4>
+                    <p>Identity & Billing</p>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box" style="background: rgba(255,54,33,0.2);">
+                    <h4>Metastore</h4>
+                    <p>Regional Metadata</p>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">
+                    <h4>Workspaces</h4>
+                    <p>Compute & UI</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <p><strong>Key Relationship:</strong> One metastore per region can be attached to multiple workspaces in that region. All attached workspaces share the same metadata and governance.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Three-Level Namespace -->
         <div class="slide">
             <h1 class="slide-title">Three-Level Namespace</h1>
             <div class="hierarchy">
-                <div class="hierarchy-level" style="background: rgba(255,54,33,0.3);">CATALOG</div>
+                <div class="hierarchy-level" style="background: rgba(255,54,33,0.3); font-weight: bold;">CATALOG</div>
                 <div class="hierarchy-arrow">↓</div>
                 <div class="hierarchy-level">SCHEMA (Database)</div>
                 <div class="hierarchy-arrow">↓</div>
-                <div class="hierarchy-level" style="background: rgba(255,255,255,0.1);">TABLE / VIEW / FUNCTION</div>
+                <div class="hierarchy-level" style="background: rgba(255,255,255,0.1);">TABLE / VIEW / FUNCTION / MODEL</div>
             </div>
             <div class="code-block">
--- Fully qualified name<br>
-SELECT * FROM catalog_name.schema_name.table_name;
+                <span style="color: #888;">-- Fully qualified three-level name</span><br>
+                SELECT * FROM <span style="color: #FF6B35;">catalog_name</span>.<span style="color: #6699ff;">schema_name</span>.<span style="color: #66ff66;">table_name</span>;
             </div>
         </div>
 
-        <!-- Slide 5: Metastore -->
+        <!-- Slide 9: Securable Objects -->
+        <div class="slide">
+            <h1 class="slide-title">Securable Objects in Unity Catalog</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Data Objects</h4>
+                    <ul>
+                        <li>Catalogs</li>
+                        <li>Schemas</li>
+                        <li>Tables</li>
+                        <li>Views</li>
+                        <li>Volumes</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>AI Objects</h4>
+                    <ul>
+                        <li>Models</li>
+                        <li>Functions</li>
+                        <li>Registered Models</li>
+                        <li>Feature Tables</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Storage Objects</h4>
+                    <ul>
+                        <li>Storage Credentials</li>
+                        <li>External Locations</li>
+                        <li>Connections</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Section 2 Divider -->
+        <div class="slide section-divider">
+            <div class="section-number">Section 2</div>
+            <h1 class="slide-title">Metastore Configuration</h1>
+            <p style="font-size: 1.3em; color: #888;">The Foundation of Unity Catalog</p>
+        </div>
+
+        <!-- Slide 11: The Metastore -->
         <div class="slide">
             <h1 class="slide-title">The Metastore</h1>
             <div class="highlight-box">
-                <p><strong>Metastore</strong> is the top-level container for all Unity Catalog objects. One metastore per region, shared across workspaces.</p>
+                <p><strong>Metastore</strong> is the top-level container for all Unity Catalog metadata. It stores catalogs, schemas, tables, and access control policies.</p>
             </div>
             <ul class="bullet-list" style="margin-top: 20px;">
-                <li>Contains catalogs, schemas, tables</li>
-                <li>Stores access control policies</li>
-                <li>Tracks lineage information</li>
-                <li>Region-specific deployment</li>
-                <li>Assigned to workspaces in same region</li>
+                <li><strong>Region-specific</strong> - One metastore per cloud region</li>
+                <li><strong>Account-level resource</strong> - Managed at account level, not workspace</li>
+                <li><strong>Shared across workspaces</strong> - Multiple workspaces can attach to same metastore</li>
+                <li><strong>Contains root storage</strong> - Default location for managed tables</li>
+                <li><strong>Stores all metadata</strong> - Objects, permissions, lineage, audit logs</li>
             </ul>
         </div>
 
-        <!-- Slide 6: Storage Credentials & External Locations -->
+        <!-- Slide 12: Metastore Configuration -->
         <div class="slide">
-            <h1 class="slide-title">Storage Credentials & External Locations</h1>
-            <div class="two-column">
-                <div>
-                    <div class="column-title">Storage Credentials</div>
-                    <ul class="bullet-list">
-                        <li>Reference to cloud IAM</li>
-                        <li>AWS: IAM Role</li>
-                        <li>Azure: Service Principal</li>
-                        <li>GCP: Service Account</li>
-                    </ul>
-                </div>
-                <div>
-                    <div class="column-title">External Locations</div>
-                    <ul class="bullet-list">
-                        <li>Path in cloud storage</li>
-                        <li>Uses storage credential</li>
-                        <li>For external tables</li>
-                        <li>Scoped access control</li>
-                    </ul>
-                </div>
+            <h1 class="slide-title">Creating a Metastore</h1>
+            <ul class="bullet-list">
+                <li><strong>Account Admin</strong> creates metastore in Account Console</li>
+                <li class="sub-item">Specify name and region</li>
+                <li class="sub-item">Configure root storage location</li>
+                <li class="sub-item">Set up storage credential for root storage</li>
+                <li><strong>Assign Metastore Admin</strong> - User or group to manage metastore</li>
+                <li><strong>Enable features</strong> - Delta Sharing, Lineage, etc.</li>
+            </ul>
+            <div class="warning-box">
+                <p><strong>Important:</strong> A metastore can only be attached to workspaces in the same region. Plan your regional architecture carefully.</p>
             </div>
         </div>
 
-        <!-- Slide 7: Managed vs External Tables -->
+        <!-- Slide 13: Workspace Binding -->
+        <div class="slide">
+            <h1 class="slide-title">Workspace to Metastore Binding</h1>
+            <ul class="bullet-list">
+                <li>Each workspace can only be attached to <strong>one metastore</strong></li>
+                <li>Binding is done by <strong>Account Admin</strong> or <strong>Metastore Admin</strong></li>
+                <li>Once bound, workspace users can access Unity Catalog objects</li>
+                <li>Existing hive_metastore data remains accessible (legacy)</li>
+            </ul>
+            <div class="code-block">
+                <span style="color: #888;">-- After binding, users see both:</span><br>
+                SHOW CATALOGS;<br><br>
+                <span style="color: #888;">-- Results:</span><br>
+                hive_metastore  <span style="color: #888;">-- Legacy (per-workspace)</span><br>
+                main            <span style="color: #888;">-- Unity Catalog default</span><br>
+                sales_catalog   <span style="color: #888;">-- Custom catalog</span>
+            </div>
+        </div>
+
+        <!-- Slide 14: Storage Credentials -->
+        <div class="slide">
+            <h1 class="slide-title">Storage Credentials</h1>
+            <div class="highlight-box">
+                <p><strong>Storage Credential</strong> = Named object that provides Unity Catalog the ability to access cloud storage using your cloud provider's IAM.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Cloud</th>
+                    <th>Credential Type</th>
+                    <th>Configuration</th>
+                </tr>
+                <tr>
+                    <td>AWS</td>
+                    <td>IAM Role</td>
+                    <td>Role ARN with trust policy</td>
+                </tr>
+                <tr>
+                    <td>Azure</td>
+                    <td>Service Principal or Managed Identity</td>
+                    <td>Application ID, Directory ID, Secret</td>
+                </tr>
+                <tr>
+                    <td>GCP</td>
+                    <td>Service Account</td>
+                    <td>Service account email</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 15: Creating Storage Credential -->
+        <div class="slide">
+            <h1 class="slide-title">Creating a Storage Credential</h1>
+            <div class="code-block">
+                <span style="color: #888;">-- Create storage credential (AWS example)</span><br>
+                CREATE STORAGE CREDENTIAL aws_prod_credential<br>
+                WITH (<br>
+                &nbsp;&nbsp;AWS_IAM_ROLE = 'arn:aws:iam::123456789:role/unity-catalog-role'<br>
+                )<br>
+                COMMENT 'Production storage access';<br><br>
+
+                <span style="color: #888;">-- Grant usage to data engineers</span><br>
+                GRANT CREATE EXTERNAL LOCATION<br>
+                ON STORAGE CREDENTIAL aws_prod_credential<br>
+                TO `data_engineers`;
+            </div>
+        </div>
+
+        <!-- Slide 16: External Locations -->
+        <div class="slide">
+            <h1 class="slide-title">External Locations</h1>
+            <div class="highlight-box">
+                <p><strong>External Location</strong> = Named object mapping a cloud storage path to a storage credential. Enables governed access to specific storage paths.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>References storage credential</strong> - Uses IAM for access</li>
+                <li><strong>Defines specific path</strong> - s3://bucket/path/, abfss://container@account/, gs://bucket/</li>
+                <li><strong>Enables external tables</strong> - Tables pointing to existing data</li>
+                <li><strong>Scoped permissions</strong> - Grant access to specific locations</li>
+            </ul>
+        </div>
+
+        <!-- Slide 17: Creating External Location -->
+        <div class="slide">
+            <h1 class="slide-title">Creating an External Location</h1>
+            <div class="code-block">
+                <span style="color: #888;">-- Create external location</span><br>
+                CREATE EXTERNAL LOCATION sales_data_location<br>
+                URL 's3://company-datalake/sales/'<br>
+                WITH (STORAGE CREDENTIAL aws_prod_credential)<br>
+                COMMENT 'Sales data external storage';<br><br>
+
+                <span style="color: #888;">-- Grant access for creating external tables</span><br>
+                GRANT CREATE EXTERNAL TABLE<br>
+                ON EXTERNAL LOCATION sales_data_location<br>
+                TO `data_engineers`;
+            </div>
+        </div>
+
+        <!-- Slide 18: Section 3 Divider -->
+        <div class="slide section-divider">
+            <div class="section-number">Section 3</div>
+            <h1 class="slide-title">Catalogs, Schemas & Tables</h1>
+            <p style="font-size: 1.3em; color: #888;">Organizing Your Data Assets</p>
+        </div>
+
+        <!-- Slide 19: Catalogs -->
+        <div class="slide">
+            <h1 class="slide-title">Catalogs</h1>
+            <div class="highlight-box">
+                <p><strong>Catalog</strong> = Top-level container for schemas. Use catalogs to organize data by environment, business domain, or team.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Environment separation</strong> - dev_catalog, staging_catalog, prod_catalog</li>
+                <li><strong>Domain organization</strong> - sales_catalog, hr_catalog, finance_catalog</li>
+                <li><strong>Contains schemas</strong> - First level of three-level namespace</li>
+                <li><strong>Permission boundary</strong> - USAGE grant required to access</li>
+            </ul>
+            <div class="code-block">
+                <span style="color: #888;">-- Create a catalog</span><br>
+                CREATE CATALOG IF NOT EXISTS sales_catalog<br>
+                COMMENT 'Sales domain data catalog';
+            </div>
+        </div>
+
+        <!-- Slide 20: Schemas -->
+        <div class="slide">
+            <h1 class="slide-title">Schemas (Databases)</h1>
+            <div class="highlight-box">
+                <p><strong>Schema</strong> = Container for tables, views, functions within a catalog. Second level of the namespace.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Logical grouping</strong> - Group related tables together</li>
+                <li><strong>Medallion layers</strong> - bronze, silver, gold schemas</li>
+                <li><strong>Default schema</strong> - 'default' created automatically in each catalog</li>
+                <li><strong>Managed location</strong> - Can specify custom storage path</li>
+            </ul>
+            <div class="code-block">
+                <span style="color: #888;">-- Create schemas for medallion architecture</span><br>
+                CREATE SCHEMA sales_catalog.bronze;<br>
+                CREATE SCHEMA sales_catalog.silver;<br>
+                CREATE SCHEMA sales_catalog.gold;
+            </div>
+        </div>
+
+        <!-- Slide 21: Managed vs External Tables -->
         <div class="slide">
             <h1 class="slide-title">Managed vs External Tables</h1>
             <table>
@@ -145,42 +402,120 @@ SELECT * FROM catalog_name.schema_name.table_name;
                 </tr>
                 <tr>
                     <td>Data Location</td>
-                    <td>Metastore storage</td>
+                    <td>Metastore root storage</td>
                     <td>Your specified path</td>
                 </tr>
                 <tr>
                     <td>Data Lifecycle</td>
                     <td>Unity Catalog manages</td>
-                    <td>You manage</td>
+                    <td>You manage independently</td>
                 </tr>
                 <tr>
                     <td>DROP TABLE</td>
-                    <td>Deletes data</td>
-                    <td>Keeps data</td>
+                    <td>Deletes metadata AND data</td>
+                    <td>Deletes metadata only</td>
                 </tr>
                 <tr>
                     <td>Use Case</td>
                     <td>New data, full governance</td>
-                    <td>Existing data, external access</td>
+                    <td>Existing data, shared access</td>
+                </tr>
+                <tr>
+                    <td>Creation</td>
+                    <td>CREATE TABLE</td>
+                    <td>CREATE TABLE ... LOCATION</td>
                 </tr>
             </table>
         </div>
 
-        <!-- Slide 8: Governance Model -->
+        <!-- Slide 22: Creating Tables -->
         <div class="slide">
-            <h1 class="slide-title">Centralized Governance Model</h1>
-            <ul class="bullet-list">
-                <li><strong>Unified permissions</strong> – GRANT/REVOKE SQL syntax</li>
-                <li><strong>Inheritance</strong> – Permissions cascade down hierarchy</li>
-                <li><strong>Data lineage</strong> – Automatic tracking of data flow</li>
-                <li><strong>Audit logging</strong> – All access is logged</li>
-                <li><strong>Data discovery</strong> – Search and browse all assets</li>
-            </ul>
+            <h1 class="slide-title">Creating Tables</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Managed Table</div>
+                    <div class="code-block">
+<span style="color: #888;">-- Managed table</span><br>
+CREATE TABLE sales.bronze.orders (<br>
+&nbsp;&nbsp;order_id INT,<br>
+&nbsp;&nbsp;customer_id INT,<br>
+&nbsp;&nbsp;amount DECIMAL(10,2),<br>
+&nbsp;&nbsp;order_date DATE<br>
+);
+                    </div>
+                </div>
+                <div>
+                    <div class="column-title">External Table</div>
+                    <div class="code-block">
+<span style="color: #888;">-- External table</span><br>
+CREATE TABLE sales.bronze.legacy_orders (<br>
+&nbsp;&nbsp;order_id INT,<br>
+&nbsp;&nbsp;customer_id INT,<br>
+&nbsp;&nbsp;amount DECIMAL(10,2)<br>
+)<br>
+LOCATION 's3://bucket/legacy/';
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Slide 9: Key Admin Tasks -->
+        <!-- Slide 23: Views -->
         <div class="slide">
-            <h1 class="slide-title">Unity Catalog Admin Tasks</h1>
+            <h1 class="slide-title">Views in Unity Catalog</h1>
+            <ul class="bullet-list">
+                <li><strong>Standard Views</strong> - Saved query, computed at runtime</li>
+                <li><strong>Dynamic Views</strong> - Apply row/column security dynamically</li>
+                <li><strong>Cross-catalog views</strong> - Can reference tables from multiple catalogs</li>
+            </ul>
+            <div class="code-block">
+                <span style="color: #888;">-- Create a view for analysts</span><br>
+                CREATE VIEW sales.gold.order_summary AS<br>
+                SELECT<br>
+                &nbsp;&nbsp;DATE_TRUNC('month', order_date) as month,<br>
+                &nbsp;&nbsp;COUNT(*) as order_count,<br>
+                &nbsp;&nbsp;SUM(amount) as total_revenue<br>
+                FROM sales.silver.orders<br>
+                GROUP BY 1;
+            </div>
+        </div>
+
+        <!-- Slide 24: Volumes -->
+        <div class="slide">
+            <h1 class="slide-title">Volumes: Governed File Storage</h1>
+            <div class="highlight-box">
+                <p><strong>Volumes</strong> = Unity Catalog objects for governing access to non-tabular data (files, images, logs, etc.)</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Managed volumes</strong> - Files stored in metastore root storage</li>
+                <li><strong>External volumes</strong> - Files in your cloud storage</li>
+                <li><strong>Access control</strong> - Same GRANT/REVOKE model as tables</li>
+                <li><strong>Path access</strong> - /Volumes/catalog/schema/volume/path</li>
+            </ul>
+            <div class="code-block">
+                CREATE VOLUME sales.bronze.raw_files<br>
+                COMMENT 'Raw sales data files';
+            </div>
+        </div>
+
+        <!-- Slide 25: Data Explorer -->
+        <div class="slide">
+            <h1 class="slide-title">Data Explorer Interface</h1>
+            <ul class="bullet-list">
+                <li><strong>Catalog Browser</strong> - Navigate catalogs → schemas → tables</li>
+                <li><strong>Search</strong> - Find tables, columns, and descriptions</li>
+                <li><strong>Schema Details</strong> - View column types, descriptions, tags</li>
+                <li><strong>Sample Data</strong> - Preview table contents (with permissions)</li>
+                <li><strong>Lineage View</strong> - See upstream/downstream dependencies</li>
+                <li><strong>Permissions</strong> - View and manage access from UI</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Access:</strong> Workspace sidebar → Catalog → Data Explorer</p>
+            </div>
+        </div>
+
+        <!-- Slide 26: Admin Roles -->
+        <div class="slide">
+            <h1 class="slide-title">Unity Catalog Admin Roles</h1>
             <div class="three-column">
                 <div class="info-card">
                     <h4>Metastore Admin</h4>
@@ -188,114 +523,155 @@ SELECT * FROM catalog_name.schema_name.table_name;
                         <li>Create catalogs</li>
                         <li>Manage storage credentials</li>
                         <li>Configure external locations</li>
-                        <li>Assign metastore to workspaces</li>
+                        <li>Grant ownership</li>
                     </ul>
                 </div>
                 <div class="info-card">
-                    <h4>Catalog Admin</h4>
+                    <h4>Catalog Owner</h4>
                     <ul>
                         <li>Create schemas</li>
                         <li>Grant catalog access</li>
-                        <li>Manage catalog permissions</li>
+                        <li>Manage all catalog objects</li>
+                        <li>Transfer ownership</li>
                     </ul>
                 </div>
                 <div class="info-card">
                     <h4>Data Owner</h4>
                     <ul>
                         <li>Create tables/views</li>
-                        <li>Grant table access</li>
-                        <li>Manage object permissions</li>
+                        <li>Grant object access</li>
+                        <li>Manage specific objects</li>
+                        <li>Define policies</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 10: Lab Introduction -->
+        <!-- Slide 27: Best Practices -->
+        <div class="slide">
+            <h1 class="slide-title">Unity Catalog Best Practices</h1>
+            <ul class="bullet-list">
+                <li><strong>Naming conventions</strong> - Consistent, descriptive names (env_domain)</li>
+                <li><strong>Environment separation</strong> - Separate catalogs for dev/staging/prod</li>
+                <li><strong>Medallion architecture</strong> - Bronze/silver/gold schemas</li>
+                <li><strong>Group-based access</strong> - Grant to groups, not individuals</li>
+                <li><strong>Document everything</strong> - Use COMMENT on all objects</li>
+                <li><strong>Regular audits</strong> - Review permissions quarterly</li>
+            </ul>
+        </div>
+
+        <!-- Slide 28: Common Pitfalls -->
+        <div class="slide">
+            <h1 class="slide-title">Common Pitfalls to Avoid</h1>
+            <ul class="bullet-list">
+                <li><strong>Forgetting USAGE</strong> - Must grant USAGE on catalog AND schema</li>
+                <li><strong>Wrong region</strong> - Metastore must be in same region as workspace</li>
+                <li><strong>Storage credential scope</strong> - Too broad = security risk</li>
+                <li><strong>Dropping managed tables</strong> - Data is permanently deleted!</li>
+                <li><strong>Legacy hive_metastore</strong> - Still exists, may cause confusion</li>
+                <li><strong>Cross-catalog joins</strong> - Require permissions on both catalogs</li>
+            </ul>
+        </div>
+
+        <!-- Slide 29: Lab Introduction -->
         <div class="slide">
             <h1 class="slide-title">Hands-On Lab: Unity Catalog Setup</h1>
             <div class="highlight-box">
-                <p><strong>Duration:</strong> 60 minutes</p>
+                <p><strong>Duration:</strong> 60 minutes | <strong>Difficulty:</strong> Intermediate</p>
             </div>
             <ul class="bullet-list">
-                <li>Explore metastore configuration</li>
-                <li>Create catalogs and schemas</li>
+                <li>Explore metastore configuration in Account Console</li>
+                <li>Create catalogs and schemas for a sample project</li>
                 <li>Create managed and external tables</li>
                 <li>Navigate Data Explorer</li>
-                <li>View data lineage</li>
+                <li>View table lineage</li>
+                <li>Create and query views</li>
             </ul>
             <div class="highlight-box" style="margin-top: 20px;">
                 <p><strong>Lab Guide:</strong> LAB_06_Unity_Catalog_Setup.md</p>
             </div>
         </div>
 
-        <!-- Slide 11: Summary -->
+        <!-- Slide 30: Day 6 Summary -->
         <div class="slide">
             <h1 class="slide-title">Day 6 Summary</h1>
             <div class="two-column">
                 <div>
                     <div class="column-title">Key Concepts</div>
                     <ul class="bullet-list">
-                        <li>Metastore as top-level container</li>
+                        <li>Unity Catalog = unified governance</li>
+                        <li>Metastore = regional metadata store</li>
                         <li>Three-level namespace</li>
                         <li>Storage credentials & external locations</li>
                         <li>Managed vs external tables</li>
                     </ul>
                 </div>
                 <div>
-                    <div class="column-title">Key Takeaways</div>
+                    <div class="column-title">Admin Takeaways</div>
                     <ul class="bullet-list">
-                        <li>Unity Catalog = unified governance</li>
-                        <li>One metastore per region</li>
-                        <li>Catalog → Schema → Table</li>
-                        <li>Centralized access control</li>
+                        <li>Plan metastore per region</li>
+                        <li>Use catalogs for environments</li>
+                        <li>Configure storage carefully</li>
+                        <li>Document naming conventions</li>
+                        <li>Audit access regularly</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 12: What's Next -->
+        <!-- Slide 31: What's Next -->
         <div class="slide">
             <h1 class="slide-title">Coming Up: Day 7</h1>
             <div class="highlight-box">
                 <p><strong>Unity Catalog: Security & Governance</strong></p>
             </div>
             <ul class="bullet-list">
-                <li>Privilege model & access control</li>
-                <li>Data lineage concepts</li>
-                <li>Auditing & governance workflows</li>
-                <li>Hands-on: Assign permissions</li>
+                <li>GRANT and REVOKE privilege model</li>
+                <li>Permission inheritance patterns</li>
+                <li>Column-level and row-level security</li>
+                <li>Data lineage deep dive</li>
+                <li>Audit logging and compliance</li>
             </ul>
         </div>
 
-        <!-- Slide 13: Thank You -->
+        <!-- Slide 32: Thank You -->
         <div class="slide title-slide">
             <h1 class="slide-title">Thank You!</h1>
-            <p style="font-size: 1.5em; color: #888;">See you on Day 7</p>
+            <p style="font-size: 1.5em; color: #888;">Questions? See you on Day 7</p>
+            <p style="margin-top: 30px; color: #666;">Complete the Day 6 Quiz before tomorrow</p>
         </div>
     </div>
 
     <div class="progress-bar" id="progressBar"></div>
-    <div class="slide-counter" id="slideCounter">1 / 13</div>
-    <div class="nav-hint">← → Navigate</div>
+    <div class="slide-counter" id="slideCounter">1 / 32</div>
+    <div class="nav-hint">← → Navigate | Click to advance</div>
 
     <script>
         const slides = document.querySelectorAll('.slide');
         let currentSlide = 0;
+
         function showSlide(n) {
-            if (n < 0) n = 0; if (n >= slides.length) n = slides.length - 1;
+            if (n < 0) n = 0;
+            if (n >= slides.length) n = slides.length - 1;
             slides.forEach(s => s.classList.remove('active'));
             slides[n].classList.add('active');
             currentSlide = n;
             document.getElementById('progressBar').style.width = ((n + 1) / slides.length) * 100 + '%';
             document.getElementById('slideCounter').textContent = `${n + 1} / ${slides.length}`;
         }
+
         document.addEventListener('keydown', e => {
             if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
             else if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+            else if (e.key === 'Home') showSlide(0);
+            else if (e.key === 'End') showSlide(slides.length - 1);
         });
+
         document.addEventListener('click', e => {
+            if (e.target.closest('.code-block')) return;
             e.clientX > window.innerWidth / 2 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1);
         });
+
         showSlide(0);
     </script>
 </body>
