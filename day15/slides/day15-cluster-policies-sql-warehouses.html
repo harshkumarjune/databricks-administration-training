@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 15: Cluster Policies & SQL Warehouses | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .level-badge { background: #ffc107; color: #000; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; margin-left: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 0.9em; overflow-x: auto; white-space: pre; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .speaker-notes { display: none; position: fixed; bottom: 60px; left: 30px; right: 30px; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 8px; font-size: 0.9em; max-height: 200px; overflow-y: auto; }
+        .speaker-notes.visible { display: block; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 15 of 20</div>
+            <h1 class="slide-title">Cluster Policies & SQL Warehouses</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 20px;"><span class="level-badge">Intermediate-Advanced</span></p>
+            <p style="margin-top: 40px; color: #666;">Duration: 2 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Cluster Policy Design & Concepts (30 min)</li>
+                <li>SQL Warehouse Architecture (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Hands-on Lab: Policies & Warehouses (45 min)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Learning Objective:</strong> Create restrictive cluster policies, configure SQL warehouses, and implement compute governance strategies.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: What are Cluster Policies -->
+        <div class="slide">
+            <h1 class="slide-title">What are Cluster Policies?</h1>
+            <div class="highlight-box">
+                <p><strong>Cluster Policies</strong> are JSON-based rules that control what cluster configurations users can create, enforcing cost control and standardization.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Benefits</div>
+                    <ul class="bullet-list">
+                        <li>Cost control</li>
+                        <li>Standardization</li>
+                        <li>Security enforcement</li>
+                        <li>Simplified user experience</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Control Areas</div>
+                    <ul class="bullet-list">
+                        <li>Instance types</li>
+                        <li>Worker counts</li>
+                        <li>Runtime versions</li>
+                        <li>Auto-termination</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Policy Attribute Types -->
+        <div class="slide">
+            <h1 class="slide-title">Policy Attribute Types</h1>
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+                <tr>
+                    <td><strong>fixed</strong></td>
+                    <td>Value cannot be changed</td>
+                    <td>"type": "fixed", "value": "i3.xlarge"</td>
+                </tr>
+                <tr>
+                    <td><strong>allowlist</strong></td>
+                    <td>Choose from approved values</td>
+                    <td>"type": "allowlist", "values": ["13.3.x-scala2.12"]</td>
+                </tr>
+                <tr>
+                    <td><strong>blocklist</strong></td>
+                    <td>Prevent specific values</td>
+                    <td>"type": "blocklist", "values": ["p3.16xlarge"]</td>
+                </tr>
+                <tr>
+                    <td><strong>range</strong></td>
+                    <td>Numeric bounds</td>
+                    <td>"type": "range", "minValue": 1, "maxValue": 10</td>
+                </tr>
+                <tr>
+                    <td><strong>regex</strong></td>
+                    <td>Pattern matching</td>
+                    <td>"type": "regex", "pattern": "^13\\.[0-9]+"</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 5: Example Policy - Development -->
+        <div class="slide">
+            <h1 class="slide-title">Example: Development Policy</h1>
+            <div class="code-block">{
+  "name": "dev-team-policy",
+  "definition": {
+    "spark_version": {
+      "type": "regex",
+      "pattern": "^13\\.[0-9]+\\.x-scala2\\.12$"
+    },
+    "node_type_id": {
+      "type": "allowlist",
+      "values": ["i3.xlarge", "i3.2xlarge"],
+      "defaultValue": "i3.xlarge"
+    },
+    "num_workers": {
+      "type": "range",
+      "minValue": 1,
+      "maxValue": 4,
+      "defaultValue": 2
+    },
+    "autotermination_minutes": {
+      "type": "range",
+      "minValue": 10,
+      "maxValue": 60,
+      "defaultValue": 30
+    }
+  }
+}</div>
+        </div>
+
+        <!-- Slide 6: Policy - Production -->
+        <div class="slide">
+            <h1 class="slide-title">Example: Production Policy</h1>
+            <div class="code-block">{
+  "name": "prod-etl-policy",
+  "definition": {
+    "spark_version": {
+      "type": "fixed",
+      "value": "13.3.x-scala2.12",
+      "hidden": true
+    },
+    "node_type_id": {
+      "type": "fixed",
+      "value": "i3.2xlarge"
+    },
+    "driver_node_type_id": {
+      "type": "fixed",
+      "value": "i3.xlarge"
+    },
+    "num_workers": {
+      "type": "range",
+      "minValue": 4,
+      "maxValue": 20
+    },
+    "custom_tags.Environment": {
+      "type": "fixed",
+      "value": "production"
+    }
+  }
+}</div>
+        </div>
+
+        <!-- Slide 7: Required Tags -->
+        <div class="slide">
+            <h1 class="slide-title">Enforcing Required Tags</h1>
+            <div class="highlight-box">
+                <p>Use cluster policies to enforce <strong>tagging standards</strong> for cost allocation and resource management.</p>
+            </div>
+            <div class="code-block">{
+  "custom_tags.Team": {
+    "type": "unlimited",
+    "isOptional": false
+  },
+  "custom_tags.Environment": {
+    "type": "allowlist",
+    "values": ["dev", "staging", "prod"],
+    "isOptional": false
+  },
+  "custom_tags.CostCenter": {
+    "type": "regex",
+    "pattern": "^CC-[0-9]{4}$",
+    "isOptional": false
+  }
+}</div>
+        </div>
+
+        <!-- Slide 8: Policy Assignment -->
+        <div class="slide">
+            <h1 class="slide-title">Policy Assignment & Permissions</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Permission Levels</div>
+                    <ul class="bullet-list">
+                        <li><strong>CAN USE</strong> - Create clusters with policy</li>
+                        <li><strong>CAN MANAGE</strong> - Edit policy definition</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Assignment Strategy</div>
+                    <ul class="bullet-list">
+                        <li>Assign to groups, not users</li>
+                        <li>Create team-specific policies</li>
+                        <li>Default policy for all users</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Best Practice:</strong> Create a "default" policy assigned to all users, then team-specific policies with additional permissions.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: SQL Warehouses Overview -->
+        <div class="slide">
+            <h1 class="slide-title">SQL Warehouses Overview</h1>
+            <div class="highlight-box">
+                <p><strong>SQL Warehouses</strong> are compute resources optimized for running SQL queries, powering dashboards, and connecting BI tools.</p>
+            </div>
+            <div class="three-column" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h4>Classic</h4>
+                    <ul>
+                        <li>Customer-managed compute</li>
+                        <li>VPC deployment</li>
+                        <li>Fixed instance types</li>
+                        <li>Full control</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Pro</h4>
+                    <ul>
+                        <li>Enhanced features</li>
+                        <li>Photon acceleration</li>
+                        <li>Better concurrency</li>
+                        <li>Premium support</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Serverless</h4>
+                    <ul>
+                        <li>Instant startup</li>
+                        <li>Databricks-managed</li>
+                        <li>Auto-scaling</li>
+                        <li>Cost per query</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Warehouse Sizing -->
+        <div class="slide">
+            <h1 class="slide-title">SQL Warehouse Sizing</h1>
+            <table>
+                <tr>
+                    <th>Size</th>
+                    <th>Cluster Units</th>
+                    <th>Concurrent Queries</th>
+                    <th>Use Case</th>
+                </tr>
+                <tr>
+                    <td>2X-Small</td>
+                    <td>1</td>
+                    <td>~4</td>
+                    <td>Light development</td>
+                </tr>
+                <tr>
+                    <td>Small</td>
+                    <td>2</td>
+                    <td>~8</td>
+                    <td>Small team analytics</td>
+                </tr>
+                <tr>
+                    <td>Medium</td>
+                    <td>4</td>
+                    <td>~16</td>
+                    <td>Department dashboards</td>
+                </tr>
+                <tr>
+                    <td>Large</td>
+                    <td>8</td>
+                    <td>~32</td>
+                    <td>Enterprise BI</td>
+                </tr>
+                <tr>
+                    <td>X-Large+</td>
+                    <td>16+</td>
+                    <td>~64+</td>
+                    <td>Heavy analytics workloads</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 11: Warehouse Auto-scaling -->
+        <div class="slide">
+            <h1 class="slide-title">Warehouse Auto-scaling</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Configuration</div>
+                    <ul class="bullet-list">
+                        <li>Min clusters: 1 (recommended)</li>
+                        <li>Max clusters: Based on peak load</li>
+                        <li>Auto-stop: 10-30 minutes</li>
+                        <li>Scaling mode: Standard/Enhanced</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Scaling Behavior</div>
+                    <ul class="bullet-list">
+                        <li>Adds clusters when queue builds</li>
+                        <li>Removes idle clusters</li>
+                        <li>Respects min/max bounds</li>
+                        <li>Warm-up optimization</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ Set Max Clusters carefully - each cluster unit incurs additional cost!</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Query Queuing -->
+        <div class="slide">
+            <h1 class="slide-title">Query Queuing & Concurrency</h1>
+            <div class="highlight-box">
+                <p>When all compute capacity is in use, queries are <strong>queued</strong> until resources become available.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Queue timeout</strong> - Maximum wait time before failure</li>
+                <li><strong>Max concurrent queries</strong> - Per-cluster limit</li>
+                <li><strong>Query routing</strong> - Intelligent distribution</li>
+                <li><strong>Priority queues</strong> - For critical workloads (Pro/Serverless)</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ Monitor queue times in Query History to right-size warehouses.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Warehouse Permissions -->
+        <div class="slide">
+            <h1 class="slide-title">SQL Warehouse Permissions</h1>
+            <table>
+                <tr>
+                    <th>Permission</th>
+                    <th>Capabilities</th>
+                </tr>
+                <tr>
+                    <td><strong>CAN USE</strong></td>
+                    <td>Run queries, view warehouse status</td>
+                </tr>
+                <tr>
+                    <td><strong>CAN MONITOR</strong></td>
+                    <td>View query history, monitor performance</td>
+                </tr>
+                <tr>
+                    <td><strong>CAN MANAGE</strong></td>
+                    <td>Edit configuration, start/stop, manage permissions</td>
+                </tr>
+                <tr>
+                    <td><strong>IS OWNER</strong></td>
+                    <td>Full control, including delete</td>
+                </tr>
+            </table>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Best Practice:</strong> Assign CAN USE to groups, CAN MANAGE to admins only.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Warehouse Strategy -->
+        <div class="slide">
+            <h1 class="slide-title">Warehouse Strategy by Use Case</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Ad-hoc Analysis</h4>
+                    <ul>
+                        <li>Size: Small-Medium</li>
+                        <li>Auto-stop: 15 min</li>
+                        <li>Max clusters: 2-4</li>
+                        <li>Serverless: Ideal</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>BI Dashboards</h4>
+                    <ul>
+                        <li>Size: Medium-Large</li>
+                        <li>Auto-stop: 30 min</li>
+                        <li>Max clusters: 4-8</li>
+                        <li>Pro: Recommended</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>ETL Queries</h4>
+                    <ul>
+                        <li>Size: Medium+</li>
+                        <li>Auto-stop: 10 min</li>
+                        <li>Max clusters: Based on load</li>
+                        <li>Classic/Pro: OK</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Key Takeaways -->
+        <div class="slide">
+            <h1 class="slide-title">Key Takeaways</h1>
+            <ul class="bullet-list">
+                <li><strong>Cluster policies</strong> enforce compute governance</li>
+                <li>Use <strong>attribute types</strong> (fixed, allowlist, range) strategically</li>
+                <li>Enforce <strong>required tags</strong> for cost allocation</li>
+                <li>Choose <strong>Serverless</strong> for instant startup, variable load</li>
+                <li>Right-size warehouses based on <strong>concurrency needs</strong></li>
+                <li>Monitor <strong>queue times</strong> to optimize sizing</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Lab:</strong> Create cluster policies and configure SQL warehouses</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+    <div class="speaker-notes" id="notes"></div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        const total = slides.length;
+
+        function showSlide(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+            document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+            if (e.key === 'ArrowLeft') showSlide(current - 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(total - 1);
+            if (e.key === 'n' || e.key === 'N') {
+                document.getElementById('notes').classList.toggle('visible');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(current + 1);
+            else showSlide(current - 1);
+        });
+    </script>
+</body>
+</html>

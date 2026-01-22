@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 16: Job Orchestration & Workflows | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .level-badge { background: #28a745; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 0.9em; overflow-x: auto; white-space: pre; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .workflow-diagram { display: flex; align-items: center; justify-content: center; margin: 20px 0; padding: 30px; background: rgba(255,255,255,0.02); border-radius: 12px; }
+        .workflow-box { background: linear-gradient(135deg, #FF3621, #FF6B35); padding: 15px 25px; border-radius: 8px; margin: 0 10px; }
+        .workflow-arrow { color: #FF6B35; font-size: 2em; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 16 of 20</div>
+            <h1 class="slide-title">Job Orchestration & Workflows</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 20px;"><span class="level-badge">Intermediate</span></p>
+            <p style="margin-top: 40px; color: #666;">Duration: 2 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Databricks Jobs Framework (30 min)</li>
+                <li>Task Dependencies & Scheduling (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Hands-on Lab: Job Orchestration (45 min)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Learning Objective:</strong> Create multi-task workflows, configure job scheduling, and implement retry policies for production workloads.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Jobs Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Jobs Overview</h1>
+            <div class="highlight-box">
+                <p><strong>Databricks Jobs</strong> are the primary mechanism for running notebooks, Python scripts, JAR files, and SQL queries on a schedule or trigger.</p>
+            </div>
+            <div class="three-column" style="margin-top: 20px;">
+                <div class="info-card">
+                    <h4>Task Types</h4>
+                    <ul>
+                        <li>Notebook</li>
+                        <li>Python script</li>
+                        <li>JAR file</li>
+                        <li>SQL query</li>
+                        <li>DLT pipeline</li>
+                        <li>dbt task</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Triggers</h4>
+                    <ul>
+                        <li>Manual run</li>
+                        <li>Scheduled (CRON)</li>
+                        <li>File arrival</li>
+                        <li>Continuous</li>
+                        <li>API triggered</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Task dependencies</li>
+                        <li>Retry policies</li>
+                        <li>Alerts & notifications</li>
+                        <li>Parameters</li>
+                        <li>Access control</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Multi-Task Workflows -->
+        <div class="slide">
+            <h1 class="slide-title">Multi-Task Workflows</h1>
+            <div class="highlight-box">
+                <p>A <strong>workflow</strong> is a job with multiple tasks that can run in sequence or parallel based on dependencies.</p>
+            </div>
+            <div class="workflow-diagram">
+                <div class="workflow-box">Extract</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-box">Transform</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-box">Load</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-box">Validate</div>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Tasks can depend on multiple upstream tasks</li>
+                <li>Parallel execution where dependencies allow</li>
+                <li>Conditional execution based on outcomes</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: Task Dependencies -->
+        <div class="slide">
+            <h1 class="slide-title">Task Dependencies</h1>
+            <table>
+                <tr>
+                    <th>Dependency Type</th>
+                    <th>Behavior</th>
+                    <th>Use Case</th>
+                </tr>
+                <tr>
+                    <td><strong>All Success</strong></td>
+                    <td>Run only if ALL upstream succeed</td>
+                    <td>Standard ETL pipelines</td>
+                </tr>
+                <tr>
+                    <td><strong>At Least One Success</strong></td>
+                    <td>Run if ANY upstream succeeds</td>
+                    <td>Fallback patterns</td>
+                </tr>
+                <tr>
+                    <td><strong>None Failed</strong></td>
+                    <td>Run if no upstream failed (skipped OK)</td>
+                    <td>Optional steps</td>
+                </tr>
+                <tr>
+                    <td><strong>All Done</strong></td>
+                    <td>Run regardless of upstream status</td>
+                    <td>Cleanup tasks</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 6: Job Clusters -->
+        <div class="slide">
+            <h1 class="slide-title">Job Cluster Configuration</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Job Cluster (Recommended)</div>
+                    <ul class="bullet-list">
+                        <li>Created per job run</li>
+                        <li>Terminated after completion</li>
+                        <li>Cost-efficient</li>
+                        <li>Isolated environment</li>
+                        <li>Defined in job config</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Existing Cluster</div>
+                    <ul class="bullet-list">
+                        <li>Uses running cluster</li>
+                        <li>Faster startup</li>
+                        <li>Shared resources</li>
+                        <li>Good for development</li>
+                        <li>Not recommended for prod</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Best Practice:</strong> Use Job Clusters for production workloads to ensure isolation and cost efficiency.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Scheduling -->
+        <div class="slide">
+            <h1 class="slide-title">Job Scheduling</h1>
+            <div class="highlight-box">
+                <p>Jobs can be scheduled using <strong>CRON expressions</strong> or triggered by <strong>file arrival</strong> events.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>CRON Expression</th>
+                    <th>Schedule</th>
+                </tr>
+                <tr>
+                    <td><code>0 0 * * *</code></td>
+                    <td>Daily at midnight</td>
+                </tr>
+                <tr>
+                    <td><code>0 */6 * * *</code></td>
+                    <td>Every 6 hours</td>
+                </tr>
+                <tr>
+                    <td><code>0 8 * * 1-5</code></td>
+                    <td>Weekdays at 8 AM</td>
+                </tr>
+                <tr>
+                    <td><code>0 0 1 * *</code></td>
+                    <td>First day of month</td>
+                </tr>
+            </table>
+            <div class="warning-box" style="margin-top: 15px;">
+                <p>⚠️ Always specify timezone explicitly to avoid daylight saving issues!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Retry Policies -->
+        <div class="slide">
+            <h1 class="slide-title">Retry Policies</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Task-Level Retries</div>
+                    <ul class="bullet-list">
+                        <li>Retry individual task</li>
+                        <li>Configurable retry count</li>
+                        <li>Delay between retries</li>
+                        <li>Preserves completed tasks</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Job-Level Retries</div>
+                    <ul class="bullet-list">
+                        <li>Retry entire workflow</li>
+                        <li>Restarts from beginning</li>
+                        <li>Use for transient failures</li>
+                        <li>Max retries configurable</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="code-block" style="margin-top: 20px;">{
+  "retry_on_timeout": true,
+  "max_retries": 3,
+  "min_retry_interval_millis": 60000
+}</div>
+        </div>
+
+        <!-- Slide 9: Alerts & Notifications -->
+        <div class="slide">
+            <h1 class="slide-title">Alerts & Notifications</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Email Alerts</h4>
+                    <ul>
+                        <li>On job start</li>
+                        <li>On job success</li>
+                        <li>On job failure</li>
+                        <li>On job skipped</li>
+                        <li>Multiple recipients</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Webhook Notifications</h4>
+                    <ul>
+                        <li>Custom endpoints</li>
+                        <li>Slack integration</li>
+                        <li>PagerDuty</li>
+                        <li>Microsoft Teams</li>
+                        <li>Custom payloads</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>System Destinations</h4>
+                    <ul>
+                        <li>Preconfigured targets</li>
+                        <li>Centrally managed</li>
+                        <li>Reusable across jobs</li>
+                        <li>Admin controlled</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Job Parameters -->
+        <div class="slide">
+            <h1 class="slide-title">Job Parameters</h1>
+            <div class="highlight-box">
+                <p><strong>Parameters</strong> allow dynamic configuration of jobs without modifying the code.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Parameter Types</div>
+                    <ul class="bullet-list">
+                        <li><strong>Job parameters</strong> - Global to all tasks</li>
+                        <li><strong>Task parameters</strong> - Per-task values</li>
+                        <li><strong>Dynamic values</strong> - Runtime substitution</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Dynamic Values</div>
+                    <ul class="bullet-list">
+                        <li>{{job.id}}</li>
+                        <li>{{job.run_id}}</li>
+                        <li>{{task.name}}</li>
+                        <li>{{start_date}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Job Permissions -->
+        <div class="slide">
+            <h1 class="slide-title">Job Access Control</h1>
+            <table>
+                <tr>
+                    <th>Permission</th>
+                    <th>Capabilities</th>
+                </tr>
+                <tr>
+                    <td><strong>CAN VIEW</strong></td>
+                    <td>View job configuration and run history</td>
+                </tr>
+                <tr>
+                    <td><strong>CAN MANAGE RUN</strong></td>
+                    <td>View, trigger runs, cancel runs</td>
+                </tr>
+                <tr>
+                    <td><strong>IS OWNER</strong></td>
+                    <td>Full control: edit, delete, manage permissions</td>
+                </tr>
+                <tr>
+                    <td><strong>CAN MANAGE</strong></td>
+                    <td>Edit job configuration, manage permissions</td>
+                </tr>
+            </table>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Best Practice:</strong> Use service principals as job owners for production workflows.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Concurrent Runs -->
+        <div class="slide">
+            <h1 class="slide-title">Concurrent Run Management</h1>
+            <div class="highlight-box">
+                <p>Control whether multiple instances of a job can run simultaneously.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Setting</th>
+                    <th>Behavior</th>
+                    <th>Use Case</th>
+                </tr>
+                <tr>
+                    <td>Max concurrent runs: 1</td>
+                    <td>Queue or skip new runs</td>
+                    <td>ETL that writes to same tables</td>
+                </tr>
+                <tr>
+                    <td>Max concurrent runs: &gt;1</td>
+                    <td>Allow parallel execution</td>
+                    <td>Parameterized jobs</td>
+                </tr>
+                <tr>
+                    <td>Queue duration</td>
+                    <td>Wait time before timeout</td>
+                    <td>Handle delayed starts</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 13: Timeout Configuration -->
+        <div class="slide">
+            <h1 class="slide-title">Timeout Configuration</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Task Timeout</div>
+                    <ul class="bullet-list">
+                        <li>Per-task time limit</li>
+                        <li>Fails task if exceeded</li>
+                        <li>Triggers retry if configured</li>
+                        <li>Default: no timeout</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Job Timeout</div>
+                    <ul class="bullet-list">
+                        <li>Entire workflow time limit</li>
+                        <li>Includes all tasks</li>
+                        <li>Fails job if exceeded</li>
+                        <li>Critical for SLA compliance</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ Always set reasonable timeouts to prevent runaway jobs from consuming resources!</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Best Practices -->
+        <div class="slide">
+            <h1 class="slide-title">Job Orchestration Best Practices</h1>
+            <ul class="bullet-list">
+                <li>Use <strong>job clusters</strong> for production workloads</li>
+                <li>Configure <strong>retry policies</strong> for transient failures</li>
+                <li>Set <strong>timeouts</strong> to prevent runaway jobs</li>
+                <li>Use <strong>service principals</strong> as job owners</li>
+                <li>Enable <strong>notifications</strong> for failures</li>
+                <li>Use <strong>parameters</strong> for environment flexibility</li>
+                <li><strong>Tag jobs</strong> for cost allocation</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Key Takeaways -->
+        <div class="slide">
+            <h1 class="slide-title">Key Takeaways</h1>
+            <ul class="bullet-list">
+                <li><strong>Multi-task workflows</strong> enable complex pipeline orchestration</li>
+                <li><strong>Task dependencies</strong> control execution order and conditions</li>
+                <li><strong>Job clusters</strong> provide isolation and cost efficiency</li>
+                <li><strong>CRON scheduling</strong> automates recurring workloads</li>
+                <li><strong>Retry policies</strong> handle transient failures gracefully</li>
+                <li><strong>Access control</strong> secures job management</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Lab:</strong> Create a multi-task ETL workflow with dependencies and scheduling</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        const total = slides.length;
+
+        function showSlide(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+            document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+            if (e.key === 'ArrowLeft') showSlide(current - 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(total - 1);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(current + 1);
+            else showSlide(current - 1);
+        });
+    </script>
+</body>
+</html>

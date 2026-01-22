@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 19: Cost Governance & Optimization | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .level-badge { background: #ffc107; color: #000; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 0.85em; overflow-x: auto; white-space: pre; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .cost-box { background: rgba(0, 123, 255, 0.1); border-left: 4px solid #007bff; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .cost-box p { font-size: 1.1em; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 19 of 20</div>
+            <h1 class="slide-title">Cost Governance & Optimization</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 20px;"><span class="level-badge">Intermediate-Advanced</span></p>
+            <p style="margin-top: 40px; color: #666;">Duration: 2 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>DBU Pricing & Cost Drivers (30 min)</li>
+                <li>Tagging & Chargeback Strategies (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Hands-on Lab: Cost Analysis & Optimization (45 min)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Learning Objective:</strong> Analyze cost consumption, implement resource tagging, and optimize compute costs using system tables and best practices.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: DBU Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Understanding DBU Pricing</h1>
+            <div class="highlight-box">
+                <p><strong>DBU (Databricks Unit)</strong> is the unit of processing capability used to measure Databricks consumption.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>SKU Type</th>
+                    <th>Description</th>
+                    <th>Relative Cost</th>
+                </tr>
+                <tr>
+                    <td>All-Purpose Compute</td>
+                    <td>Interactive clusters</td>
+                    <td>$$$$</td>
+                </tr>
+                <tr>
+                    <td>Jobs Compute</td>
+                    <td>Automated job clusters</td>
+                    <td>$$</td>
+                </tr>
+                <tr>
+                    <td>SQL (Serverless)</td>
+                    <td>SQL warehouse queries</td>
+                    <td>$$$</td>
+                </tr>
+                <tr>
+                    <td>DLT</td>
+                    <td>Delta Live Tables</td>
+                    <td>$$$</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 4: Cost Drivers -->
+        <div class="slide">
+            <h1 class="slide-title">Key Cost Drivers</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Compute</h4>
+                    <ul>
+                        <li>Cluster size & duration</li>
+                        <li>Instance types</li>
+                        <li>On-demand vs spot</li>
+                        <li>Auto-termination settings</li>
+                        <li>Photon acceleration</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Storage</h4>
+                    <ul>
+                        <li>Delta table size</li>
+                        <li>DBFS storage</li>
+                        <li>Unity Catalog metadata</li>
+                        <li>Logs & artifacts</li>
+                        <li>Version history</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Data Transfer</h4>
+                    <ul>
+                        <li>Cross-region transfer</li>
+                        <li>External data sources</li>
+                        <li>Export operations</li>
+                        <li>API calls</li>
+                        <li>Partner integrations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Tagging Strategy -->
+        <div class="slide">
+            <h1 class="slide-title">Resource Tagging Strategy</h1>
+            <div class="highlight-box">
+                <p><strong>Tags</strong> enable cost attribution, resource organization, and automated governance.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Recommended Tags</div>
+                    <ul class="bullet-list">
+                        <li><strong>Team</strong> - Cost center owner</li>
+                        <li><strong>Environment</strong> - dev/staging/prod</li>
+                        <li><strong>Project</strong> - Business initiative</li>
+                        <li><strong>Owner</strong> - Responsible person</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Enforcement Methods</div>
+                    <ul class="bullet-list">
+                        <li>Cluster policies</li>
+                        <li>Job configuration</li>
+                        <li>Automated validation</li>
+                        <li>Compliance reports</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Enforcing Tags -->
+        <div class="slide">
+            <h1 class="slide-title">Enforcing Tags with Cluster Policies</h1>
+            <div class="code-block">{
+  "custom_tags.Team": {
+    "type": "unlimited",
+    "isOptional": false
+  },
+  "custom_tags.Environment": {
+    "type": "allowlist",
+    "values": ["dev", "staging", "prod"],
+    "isOptional": false
+  },
+  "custom_tags.CostCenter": {
+    "type": "regex",
+    "pattern": "^CC-[0-9]{4}$",
+    "isOptional": false
+  },
+  "custom_tags.CreatedBy": {
+    "type": "fixed",
+    "value": "${user}",
+    "hidden": true
+  }
+}</div>
+            <div class="success-box" style="margin-top: 15px;">
+                <p>✓ Use "isOptional": false to make tags mandatory for all clusters.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Cost Queries -->
+        <div class="slide">
+            <h1 class="slide-title">Cost Analysis Queries</h1>
+            <div class="code-block">-- Daily DBU consumption by team
+SELECT
+    date_trunc('day', usage_date) as day,
+    custom_tags['Team'] as team,
+    sku_name,
+    SUM(usage_quantity) as total_dbus
+FROM system.billing.usage
+WHERE usage_date >= current_date() - 30
+  AND custom_tags['Team'] IS NOT NULL
+GROUP BY 1, 2, 3
+ORDER BY day DESC, total_dbus DESC;
+
+-- Monthly cost estimate by environment
+SELECT
+    custom_tags['Environment'] as environment,
+    SUM(usage_quantity * 0.55) as estimated_cost_usd
+FROM system.billing.usage
+WHERE usage_date >= date_trunc('month', current_date())
+GROUP BY 1
+ORDER BY estimated_cost_usd DESC;</div>
+        </div>
+
+        <!-- Slide 8: Optimization - Clusters -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Cost Optimization</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Right-sizing</h4>
+                    <ul>
+                        <li>Match instance to workload</li>
+                        <li>Use auto-scaling</li>
+                        <li>Review utilization metrics</li>
+                        <li>Avoid over-provisioning</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Spot Instances</h4>
+                    <ul>
+                        <li>60-90% cost savings</li>
+                        <li>Use for fault-tolerant jobs</li>
+                        <li>Configure fallback</li>
+                        <li>Keep driver on-demand</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Auto-termination</h4>
+                    <ul>
+                        <li>Set aggressive timeouts</li>
+                        <li>10-30 min for dev</li>
+                        <li>Use cluster pools</li>
+                        <li>Avoid "always-on"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Cluster Pools -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Pools for Cost Efficiency</h1>
+            <div class="highlight-box">
+                <p><strong>Cluster Pools</strong> maintain a set of idle instances, reducing cluster startup time and enabling consistent spot pricing.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Benefits</div>
+                    <ul class="bullet-list">
+                        <li>Faster startup (~30 sec vs 5+ min)</li>
+                        <li>Consistent spot capacity</li>
+                        <li>Reduced total cost</li>
+                        <li>Better user experience</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Configuration</div>
+                    <ul class="bullet-list">
+                        <li>Min idle instances</li>
+                        <li>Max capacity</li>
+                        <li>Idle timeout</li>
+                        <li>Instance type</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Jobs Optimization -->
+        <div class="slide">
+            <h1 class="slide-title">Jobs Cost Optimization</h1>
+            <ul class="bullet-list">
+                <li>Use <strong>job clusters</strong> instead of all-purpose clusters</li>
+                <li>Enable <strong>auto-scaling</strong> with sensible limits</li>
+                <li>Use <strong>spot instances</strong> for workers</li>
+                <li>Set <strong>timeouts</strong> to prevent runaway jobs</li>
+                <li>Optimize <strong>retry policies</strong> to avoid excessive retries</li>
+                <li>Schedule jobs during <strong>off-peak hours</strong></li>
+                <li>Use <strong>instance pools</strong> for frequently run jobs</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: SQL Warehouse Optimization -->
+        <div class="slide">
+            <h1 class="slide-title">SQL Warehouse Cost Optimization</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Sizing Strategy</div>
+                    <ul class="bullet-list">
+                        <li>Start small, scale up</li>
+                        <li>Use auto-scaling clusters</li>
+                        <li>Set appropriate max</li>
+                        <li>Monitor queue times</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Serverless Benefits</div>
+                    <ul class="bullet-list">
+                        <li>Instant startup</li>
+                        <li>Pay per query</li>
+                        <li>No idle costs</li>
+                        <li>Automatic optimization</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="cost-box" style="margin-top: 20px;">
+                <p>Consider Serverless SQL for variable/unpredictable workloads - you only pay when queries run!</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Chargeback Models -->
+        <div class="slide">
+            <h1 class="slide-title">Chargeback Implementation</h1>
+            <table>
+                <tr>
+                    <th>Model</th>
+                    <th>Description</th>
+                    <th>Pros/Cons</th>
+                </tr>
+                <tr>
+                    <td><strong>Showback</strong></td>
+                    <td>Report costs without billing</td>
+                    <td>Simple, awareness building</td>
+                </tr>
+                <tr>
+                    <td><strong>Direct Chargeback</strong></td>
+                    <td>Bill teams for actual usage</td>
+                    <td>Accountability, may discourage use</td>
+                </tr>
+                <tr>
+                    <td><strong>Allocation</strong></td>
+                    <td>Split shared costs by ratio</td>
+                    <td>Fair for shared resources</td>
+                </tr>
+                <tr>
+                    <td><strong>Budget Caps</strong></td>
+                    <td>Pre-approved spending limits</td>
+                    <td>Control, may limit innovation</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 13: Cost Dashboard -->
+        <div class="slide">
+            <h1 class="slide-title">Building a Cost Dashboard</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Executive View</h4>
+                    <ul>
+                        <li>Total monthly spend</li>
+                        <li>Month-over-month trend</li>
+                        <li>Budget vs actual</li>
+                        <li>Top cost centers</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Team View</h4>
+                    <ul>
+                        <li>Team's DBU usage</li>
+                        <li>Compute breakdown</li>
+                        <li>Top clusters/jobs</li>
+                        <li>Optimization opportunities</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Operations View</h4>
+                    <ul>
+                        <li>Daily usage patterns</li>
+                        <li>Untagged resources</li>
+                        <li>Long-running clusters</li>
+                        <li>Anomaly detection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Alerts & Budgets -->
+        <div class="slide">
+            <h1 class="slide-title">Cost Alerts & Budgets</h1>
+            <div class="highlight-box">
+                <p>Proactive alerting prevents cost surprises and enables timely intervention.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Alert Type</th>
+                    <th>Threshold Example</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td>Daily DBU spike</td>
+                    <td>&gt; 150% of 7-day average</td>
+                    <td>Investigate unusual activity</td>
+                </tr>
+                <tr>
+                    <td>Budget threshold</td>
+                    <td>80% of monthly budget</td>
+                    <td>Review remaining spend</td>
+                </tr>
+                <tr>
+                    <td>Untagged resources</td>
+                    <td>&gt; 10% of daily usage</td>
+                    <td>Enforce tagging compliance</td>
+                </tr>
+                <tr>
+                    <td>Long-running cluster</td>
+                    <td>&gt; 8 hours idle</td>
+                    <td>Auto-terminate or notify</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 15: Key Takeaways -->
+        <div class="slide">
+            <h1 class="slide-title">Key Takeaways</h1>
+            <ul class="bullet-list">
+                <li><strong>DBU pricing</strong> varies by SKU - jobs compute is cheapest</li>
+                <li><strong>Resource tagging</strong> enables cost attribution</li>
+                <li><strong>Cluster policies</strong> enforce tagging compliance</li>
+                <li>Use <strong>spot instances</strong> and <strong>auto-termination</strong></li>
+                <li><strong>Cluster pools</strong> reduce startup time and cost</li>
+                <li><strong>System tables</strong> provide cost analysis data</li>
+                <li>Build <strong>dashboards</strong> and <strong>alerts</strong> for visibility</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Lab:</strong> Query billing data and create cost optimization recommendations</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        const total = slides.length;
+
+        function showSlide(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+            document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+            if (e.key === 'ArrowLeft') showSlide(current - 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(total - 1);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(current + 1);
+            else showSlide(current - 1);
+        });
+    </script>
+</body>
+</html>

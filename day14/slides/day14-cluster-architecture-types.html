@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 14: Cluster Architecture & Types | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .level-badge { background: #28a745; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; margin-left: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 1em; overflow-x: auto; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .speaker-notes { display: none; position: fixed; bottom: 60px; left: 30px; right: 30px; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 8px; font-size: 0.9em; max-height: 200px; overflow-y: auto; }
+        .speaker-notes.visible { display: block; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 14 of 20</div>
+            <h1 class="slide-title">Cluster Architecture & Types</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 20px;"><span class="level-badge">Intermediate</span></p>
+            <p style="margin-top: 40px; color: #666;">Duration: 2 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Cluster Types: All-Purpose vs Job (30 min)</li>
+                <li>Cluster Sizing & Auto-scaling (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Databricks Runtime Versions (30 min)</li>
+                <li>Quiz & Day Wrap-up (15 min)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Learning Objective:</strong> Select appropriate cluster types, configure auto-scaling, and choose runtime versions for different workload requirements.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Compute Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Compute Overview</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>All-Purpose Clusters</h4>
+                    <ul>
+                        <li>Interactive development</li>
+                        <li>Notebooks & exploration</li>
+                        <li>Shared by multiple users</li>
+                        <li>Long-running sessions</li>
+                        <li>Ad-hoc analysis</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Job Clusters</h4>
+                    <ul>
+                        <li>Production workloads</li>
+                        <li>Created per job run</li>
+                        <li>Terminated after job</li>
+                        <li>Cost-efficient</li>
+                        <li>Isolated execution</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>SQL Warehouses</h4>
+                    <ul>
+                        <li>SQL analytics only</li>
+                        <li>BI tool connections</li>
+                        <li>Dashboards & reports</li>
+                        <li>Optimized for queries</li>
+                        <li>Auto-scaling built-in</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Cluster Architecture -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Architecture Deep Dive</h1>
+            <div class="highlight-box">
+                <p>A cluster consists of a <strong>Driver</strong> node (coordinator) and multiple <strong>Worker</strong> nodes (executors) that process data in parallel.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Driver Node</div>
+                    <ul class="bullet-list">
+                        <li>Coordinates execution</li>
+                        <li>Maintains SparkContext</li>
+                        <li>Manages metadata</li>
+                        <li>Returns results to user</li>
+                        <li>Memory-intensive tasks</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Worker Nodes</div>
+                    <ul class="bullet-list">
+                        <li>Execute Spark tasks</li>
+                        <li>Store cached data</li>
+                        <li>Shuffle data between stages</li>
+                        <li>Scale horizontally</li>
+                        <li>Compute-intensive work</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: All-Purpose vs Job Clusters -->
+        <div class="slide">
+            <h1 class="slide-title">All-Purpose vs Job Clusters</h1>
+            <table>
+                <tr>
+                    <th>Characteristic</th>
+                    <th>All-Purpose Clusters</th>
+                    <th>Job Clusters</th>
+                </tr>
+                <tr>
+                    <td>Creation</td>
+                    <td>Manual or automated</td>
+                    <td>Created per job run</td>
+                </tr>
+                <tr>
+                    <td>Lifecycle</td>
+                    <td>Long-running (hours/days)</td>
+                    <td>Job duration only</td>
+                </tr>
+                <tr>
+                    <td>Sharing</td>
+                    <td>Multiple users/notebooks</td>
+                    <td>Single job execution</td>
+                </tr>
+                <tr>
+                    <td>Cost</td>
+                    <td>Higher (always on)</td>
+                    <td>Lower (on-demand)</td>
+                </tr>
+                <tr>
+                    <td>Best For</td>
+                    <td>Development, exploration</td>
+                    <td>Production workloads</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 6: Cluster Access Modes -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Access Modes</h1>
+            <table>
+                <tr>
+                    <th>Access Mode</th>
+                    <th>Description</th>
+                    <th>Unity Catalog</th>
+                    <th>Best Use Case</th>
+                </tr>
+                <tr>
+                    <td><strong>Single User</strong></td>
+                    <td>Dedicated to one user</td>
+                    <td>✓ Full Support</td>
+                    <td>ML, custom libraries</td>
+                </tr>
+                <tr>
+                    <td><strong>Shared</strong></td>
+                    <td>Multiple users with isolation</td>
+                    <td>✓ Full Support</td>
+                    <td>Team development</td>
+                </tr>
+                <tr>
+                    <td><strong>No Isolation Shared</strong></td>
+                    <td>Multiple users, no isolation</td>
+                    <td>✗ Not Supported</td>
+                    <td>Legacy only</td>
+                </tr>
+            </table>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Best Practice:</strong> Use Single User or Shared access modes for Unity Catalog compatibility.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Auto-scaling -->
+        <div class="slide">
+            <h1 class="slide-title">Auto-scaling Clusters</h1>
+            <div class="highlight-box">
+                <p><strong>Auto-scaling</strong> automatically adds or removes worker nodes based on workload demand, optimizing cost and performance.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Configuration</div>
+                    <ul class="bullet-list">
+                        <li>Set <strong>min workers</strong></li>
+                        <li>Set <strong>max workers</strong></li>
+                        <li>Enable/disable autoscaling</li>
+                        <li>Configure scale-down timing</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Behavior</div>
+                    <ul class="bullet-list">
+                        <li>Scales up when tasks pending</li>
+                        <li>Scales down when idle</li>
+                        <li>Respects min/max bounds</li>
+                        <li>Optimizes for cost</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ Set reasonable max workers to prevent unexpected costs!</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Instance Types -->
+        <div class="slide">
+            <h1 class="slide-title">Instance Type Selection</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Memory-Optimized</h4>
+                    <ul>
+                        <li>High memory-to-CPU ratio</li>
+                        <li>Large dataset processing</li>
+                        <li>Caching-heavy workloads</li>
+                        <li>Example: r5.xlarge</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Compute-Optimized</h4>
+                    <ul>
+                        <li>High CPU-to-memory ratio</li>
+                        <li>CPU-intensive tasks</li>
+                        <li>ETL transformations</li>
+                        <li>Example: c5.xlarge</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>GPU Instances</h4>
+                    <ul>
+                        <li>Machine learning training</li>
+                        <li>Deep learning workloads</li>
+                        <li>Higher cost</li>
+                        <li>Example: p3.2xlarge</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Databricks Runtime -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Runtime Versions</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Runtime Types</div>
+                    <ul class="bullet-list">
+                        <li><strong>Standard</strong> – General purpose</li>
+                        <li><strong>ML</strong> – Machine learning libraries</li>
+                        <li><strong>Photon</strong> – Accelerated queries</li>
+                        <li><strong>GPU</strong> – Deep learning</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Version Strategy</div>
+                    <ul class="bullet-list">
+                        <li><strong>LTS</strong> = Long Term Support</li>
+                        <li>Use LTS for production</li>
+                        <li>Test before upgrading</li>
+                        <li>Check library compatibility</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ <strong>Production Rule:</strong> Always use LTS versions for production workloads!</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Photon Runtime -->
+        <div class="slide">
+            <h1 class="slide-title">Photon Acceleration</h1>
+            <div class="highlight-box">
+                <p><strong>Photon</strong> is a native vectorized query engine that accelerates Spark SQL and DataFrame operations by up to 8x.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">When to Use Photon</div>
+                    <ul class="bullet-list">
+                        <li>SQL-heavy workloads</li>
+                        <li>ETL pipelines</li>
+                        <li>BI dashboard queries</li>
+                        <li>Large aggregations</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">When NOT to Use</div>
+                    <ul class="bullet-list">
+                        <li>Primarily Python UDFs</li>
+                        <li>ML training workloads</li>
+                        <li>Streaming with UDFs</li>
+                        <li>Cost-sensitive dev work</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Spot Instances -->
+        <div class="slide">
+            <h1 class="slide-title">Spot/Preemptible Instances</h1>
+            <div class="highlight-box">
+                <p><strong>Spot instances</strong> offer 60-90% cost savings but can be terminated with short notice when capacity is needed.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Configure <strong>spot_bid_max_price</strong> (optional)</li>
+                <li>Set <strong>first_on_demand</strong> for driver reliability</li>
+                <li>Use <strong>availability</strong> setting for fallback behavior</li>
+                <li>Best for fault-tolerant, batch workloads</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Tip:</strong> Use "first_on_demand": 1 to keep driver on reliable on-demand instance.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Auto-termination -->
+        <div class="slide">
+            <h1 class="slide-title">Auto-termination Settings</h1>
+            <div class="highlight-box">
+                <p><strong>Auto-termination</strong> shuts down idle clusters after a configurable period, preventing unnecessary costs.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Setting</th>
+                    <th>Recommended Value</th>
+                    <th>Reason</th>
+                </tr>
+                <tr>
+                    <td>Development</td>
+                    <td>30-60 minutes</td>
+                    <td>Balanced convenience/cost</td>
+                </tr>
+                <tr>
+                    <td>Interactive Analysis</td>
+                    <td>15-30 minutes</td>
+                    <td>Quick turnaround expected</td>
+                </tr>
+                <tr>
+                    <td>Training/Workshop</td>
+                    <td>120 minutes</td>
+                    <td>Allow breaks/pauses</td>
+                </tr>
+            </table>
+            <div class="warning-box" style="margin-top: 20px;">
+                <p>⚠️ Job clusters should NOT have auto-termination (they auto-terminate after job completes).</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Best Practices -->
+        <div class="slide">
+            <h1 class="slide-title">Cluster Selection Best Practices</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Development</h4>
+                    <ul>
+                        <li>All-purpose cluster</li>
+                        <li>Smaller instance types</li>
+                        <li>Auto-terminate: 30 min</li>
+                        <li>Limited workers (2-4)</li>
+                        <li>Latest runtime for testing</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Production Jobs</h4>
+                    <ul>
+                        <li>Job clusters</li>
+                        <li>Right-sized instances</li>
+                        <li>LTS runtime</li>
+                        <li>Auto-scaling enabled</li>
+                        <li>Spot for workers</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>ML Training</h4>
+                    <ul>
+                        <li>Single-user cluster</li>
+                        <li>ML runtime</li>
+                        <li>GPU if needed</li>
+                        <li>Memory-optimized</li>
+                        <li>On-demand instances</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Key Takeaways -->
+        <div class="slide">
+            <h1 class="slide-title">Key Takeaways</h1>
+            <ul class="bullet-list">
+                <li>Use <strong>Job Clusters</strong> for production workloads (cost-efficient)</li>
+                <li>Use <strong>All-Purpose Clusters</strong> for development (interactive)</li>
+                <li>Enable <strong>auto-scaling</strong> with sensible limits</li>
+                <li>Always use <strong>LTS runtime</strong> for production</li>
+                <li>Consider <strong>Photon</strong> for SQL-heavy workloads</li>
+                <li>Use <strong>spot instances</strong> for fault-tolerant workloads</li>
+                <li>Configure <strong>auto-termination</strong> to control costs</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Quiz Preview -->
+        <div class="slide">
+            <h1 class="slide-title">Quiz Preview</h1>
+            <ul class="bullet-list">
+                <li>When should you use Job Clusters vs All-Purpose Clusters?</li>
+                <li>What is the benefit of auto-scaling?</li>
+                <li>Why use LTS runtime versions for production?</li>
+                <li>What is Photon and when should you use it?</li>
+                <li>How do spot instances save costs?</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Next:</strong> Day 15 - Cluster Policies & SQL Warehouses</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+    <div class="speaker-notes" id="notes"></div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        const total = slides.length;
+
+        function showSlide(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+            document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+            if (e.key === 'ArrowLeft') showSlide(current - 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(total - 1);
+            if (e.key === 'n' || e.key === 'N') {
+                document.getElementById('notes').classList.toggle('visible');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(current + 1);
+            else showSlide(current - 1);
+        });
+    </script>
+</body>
+</html>

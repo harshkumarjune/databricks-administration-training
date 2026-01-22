@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 18: Security & Compliance | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .level-badge { background: #dc3545; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .code-block { background: #0d1117; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; margin: 15px 0; font-size: 0.9em; overflow-x: auto; white-space: pre; }
+        .warning-box { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warning-box p { font-size: 1.1em; color: #ffc107; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .security-box { background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .security-box p { font-size: 1.1em; color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 18 of 20</div>
+            <h1 class="slide-title">Security & Compliance</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 20px;"><span class="level-badge">Advanced</span></p>
+            <p style="margin-top: 40px; color: #666;">Duration: 2 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Network Security (VNet, Private Link) (30 min)</li>
+                <li>Data Security & Encryption (30 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Compliance Controls (SOC 2, GDPR) (30 min)</li>
+                <li>Quiz & Day Wrap-up (15 min)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Learning Objective:</strong> Configure network security, implement encryption strategies, and apply compliance controls for enterprise Databricks environments.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Security Layers -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Security Layers</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Network Security</h4>
+                    <ul>
+                        <li>VNet/VPC injection</li>
+                        <li>Private Link</li>
+                        <li>IP access lists</li>
+                        <li>Secure connectivity</li>
+                        <li>Firewall rules</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Identity & Access</h4>
+                    <ul>
+                        <li>SSO/SAML</li>
+                        <li>SCIM provisioning</li>
+                        <li>Unity Catalog ACLs</li>
+                        <li>Service principals</li>
+                        <li>Personal access tokens</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Data Security</h4>
+                    <ul>
+                        <li>Encryption at rest</li>
+                        <li>Encryption in transit</li>
+                        <li>Customer-managed keys</li>
+                        <li>Column masking</li>
+                        <li>Row-level security</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: VNet/VPC Injection -->
+        <div class="slide">
+            <h1 class="slide-title">VNet/VPC Injection</h1>
+            <div class="highlight-box">
+                <p><strong>VNet Injection</strong> deploys Databricks clusters within your own virtual network, enabling private connectivity to other resources.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Benefits</div>
+                    <ul class="bullet-list">
+                        <li>Private connectivity to data sources</li>
+                        <li>Custom network security rules</li>
+                        <li>Compliance with network policies</li>
+                        <li>VNet peering to other networks</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Requirements</div>
+                    <ul class="bullet-list">
+                        <li>Dedicated subnets for Databricks</li>
+                        <li>Proper NSG/security group rules</li>
+                        <li>NAT gateway for outbound access</li>
+                        <li>Premium workspace tier</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Private Link -->
+        <div class="slide">
+            <h1 class="slide-title">Private Link / PrivateLink</h1>
+            <div class="highlight-box">
+                <p><strong>Private Link</strong> enables private connectivity to Databricks without traversing the public internet.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Connection Type</th>
+                    <th>Description</th>
+                    <th>Use Case</th>
+                </tr>
+                <tr>
+                    <td>Front-end Private Link</td>
+                    <td>User access to workspace UI/API</td>
+                    <td>Corporate network access</td>
+                </tr>
+                <tr>
+                    <td>Back-end Private Link</td>
+                    <td>Cluster to control plane</td>
+                    <td>Secure cluster communication</td>
+                </tr>
+                <tr>
+                    <td>Data source Private Link</td>
+                    <td>Cluster to storage/databases</td>
+                    <td>Private data access</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 6: IP Access Lists -->
+        <div class="slide">
+            <h1 class="slide-title">IP Access Lists</h1>
+            <div class="highlight-box">
+                <p><strong>IP Access Lists</strong> restrict workspace access to approved IP addresses or CIDR ranges.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Configuration Options</div>
+                    <ul class="bullet-list">
+                        <li><strong>Allow List</strong> - Only allow specific IPs</li>
+                        <li><strong>Block List</strong> - Block specific IPs</li>
+                        <li>Multiple CIDR ranges</li>
+                        <li>Labels for organization</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Best Practices</div>
+                    <ul class="bullet-list">
+                        <li>Use corporate IP ranges</li>
+                        <li>Include VPN egress IPs</li>
+                        <li>Allow CI/CD system IPs</li>
+                        <li>Test before enforcing</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning-box" style="margin-top: 15px;">
+                <p>⚠️ Test IP access lists in audit mode before switching to enforcement!</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Secure Cluster Connectivity -->
+        <div class="slide">
+            <h1 class="slide-title">Secure Cluster Connectivity (SCC)</h1>
+            <div class="highlight-box">
+                <p><strong>SCC</strong> (No Public IP) ensures cluster nodes have no public IP addresses, requiring all traffic through the VNet.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li>Clusters use only private IP addresses</li>
+                <li>Outbound internet via NAT gateway or firewall</li>
+                <li>Reduced attack surface</li>
+                <li>Required for many compliance frameworks</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ <strong>Recommendation:</strong> Enable SCC for all production workspaces.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Encryption -->
+        <div class="slide">
+            <h1 class="slide-title">Data Encryption</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>At Rest</h4>
+                    <ul>
+                        <li>Storage encryption (default)</li>
+                        <li>Customer-managed keys</li>
+                        <li>DBFS encryption</li>
+                        <li>Delta table encryption</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>In Transit</h4>
+                    <ul>
+                        <li>TLS 1.2+ for all connections</li>
+                        <li>Encrypted cluster communication</li>
+                        <li>HTTPS enforced</li>
+                        <li>Certificate management</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Customer-Managed Keys</h4>
+                    <ul>
+                        <li>Control encryption keys</li>
+                        <li>Key rotation support</li>
+                        <li>Revocation capability</li>
+                        <li>Compliance requirement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Secrets Management -->
+        <div class="slide">
+            <h1 class="slide-title">Secrets Management</h1>
+            <div class="highlight-box">
+                <p><strong>Secret Scopes</strong> securely store credentials and sensitive information, accessible only to authorized users.</p>
+            </div>
+            <div class="two-column" style="margin-top: 20px;">
+                <div>
+                    <div class="column-title">Scope Types</div>
+                    <ul class="bullet-list">
+                        <li><strong>Databricks-backed</strong> - Managed by Databricks</li>
+                        <li><strong>Azure Key Vault-backed</strong> - Integrated with AKV</li>
+                        <li><strong>AWS Secrets Manager</strong> - AWS integration</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Best Practices</div>
+                    <ul class="bullet-list">
+                        <li>Never hardcode credentials</li>
+                        <li>Use service principals</li>
+                        <li>Rotate secrets regularly</li>
+                        <li>Audit secret access</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="code-block" style="margin-top: 15px;">dbutils.secrets.get(scope="my-scope", key="db-password")</div>
+        </div>
+
+        <!-- Slide 10: Column & Row Security -->
+        <div class="slide">
+            <h1 class="slide-title">Column & Row Level Security</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Column Masking</div>
+                    <div class="code-block">-- Create masking function
+CREATE FUNCTION mask_ssn(ssn STRING)
+RETURN CASE
+  WHEN is_member('pii_access')
+  THEN ssn
+  ELSE 'XXX-XX-' || RIGHT(ssn, 4)
+END;
+
+-- Apply to column
+ALTER TABLE employees
+ALTER COLUMN ssn
+SET MASK mask_ssn;</div>
+                </div>
+                <div>
+                    <div class="column-title">Row-Level Security</div>
+                    <div class="code-block">-- Create row filter
+CREATE FUNCTION region_filter()
+RETURN CASE
+  WHEN is_member('global_access')
+  THEN TRUE
+  ELSE region = current_user_region()
+END;
+
+-- Apply to table
+ALTER TABLE sales
+SET ROW FILTER region_filter ON ();</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Compliance Frameworks -->
+        <div class="slide">
+            <h1 class="slide-title">Compliance Frameworks</h1>
+            <table>
+                <tr>
+                    <th>Framework</th>
+                    <th>Focus Area</th>
+                    <th>Key Requirements</th>
+                </tr>
+                <tr>
+                    <td><strong>SOC 2 Type II</strong></td>
+                    <td>Security, Availability</td>
+                    <td>Access control, encryption, audit logging</td>
+                </tr>
+                <tr>
+                    <td><strong>GDPR</strong></td>
+                    <td>Data Privacy (EU)</td>
+                    <td>Data minimization, consent, deletion rights</td>
+                </tr>
+                <tr>
+                    <td><strong>HIPAA</strong></td>
+                    <td>Healthcare Data</td>
+                    <td>PHI protection, audit trails, encryption</td>
+                </tr>
+                <tr>
+                    <td><strong>PCI DSS</strong></td>
+                    <td>Payment Card Data</td>
+                    <td>Network segmentation, encryption, access control</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 12: Audit Logging -->
+        <div class="slide">
+            <h1 class="slide-title">Audit Logging for Compliance</h1>
+            <div class="highlight-box">
+                <p><strong>Audit logs</strong> capture all user actions, enabling compliance reporting and security investigation.</p>
+            </div>
+            <ul class="bullet-list" style="margin-top: 20px;">
+                <li><strong>Account-level</strong> - Workspace creation, user management</li>
+                <li><strong>Workspace-level</strong> - Cluster, job, notebook actions</li>
+                <li><strong>Unity Catalog</strong> - Data access, permission changes</li>
+                <li><strong>Billable usage</strong> - Resource consumption</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ Export audit logs to your SIEM for long-term retention and analysis.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Data Governance Controls -->
+        <div class="slide">
+            <h1 class="slide-title">Data Governance Controls</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Classification</h4>
+                    <ul>
+                        <li>Tag sensitive tables</li>
+                        <li>PII identification</li>
+                        <li>Confidentiality levels</li>
+                        <li>Automated discovery</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Access Control</h4>
+                    <ul>
+                        <li>Least privilege</li>
+                        <li>Group-based access</li>
+                        <li>Regular reviews</li>
+                        <li>Just-in-time access</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Retention</h4>
+                    <ul>
+                        <li>Data lifecycle policies</li>
+                        <li>Deletion workflows</li>
+                        <li>Legal holds</li>
+                        <li>Archival strategies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Security Checklist -->
+        <div class="slide">
+            <h1 class="slide-title">Security Implementation Checklist</h1>
+            <ul class="bullet-list">
+                <li>Enable <strong>VNet injection</strong> for network isolation</li>
+                <li>Configure <strong>Private Link</strong> for private connectivity</li>
+                <li>Implement <strong>IP access lists</strong> to restrict access</li>
+                <li>Enable <strong>Secure Cluster Connectivity</strong> (no public IPs)</li>
+                <li>Use <strong>customer-managed keys</strong> for sensitive data</li>
+                <li>Configure <strong>secret scopes</strong> for credentials</li>
+                <li>Enable <strong>audit logging</strong> and export to SIEM</li>
+                <li>Implement <strong>row/column security</strong> where needed</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Key Takeaways -->
+        <div class="slide">
+            <h1 class="slide-title">Key Takeaways</h1>
+            <ul class="bullet-list">
+                <li><strong>Defense in depth</strong> - Multiple security layers</li>
+                <li><strong>VNet injection & Private Link</strong> - Network isolation</li>
+                <li><strong>IP access lists & SCC</strong> - Access restriction</li>
+                <li><strong>Encryption</strong> - At rest and in transit</li>
+                <li><strong>Secret scopes</strong> - Secure credential management</li>
+                <li><strong>Audit logging</strong> - Compliance and investigation</li>
+            </ul>
+            <div class="security-box" style="margin-top: 30px;">
+                <p>Security is everyone's responsibility. Configure it correctly from day one!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        const total = slides.length;
+
+        function showSlide(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+            document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+            if (e.key === 'ArrowLeft') showSlide(current - 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(total - 1);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(current + 1);
+            else showSlide(current - 1);
+        });
+    </script>
+</body>
+</html>

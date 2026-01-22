@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 20: Capstone Project & Certification Prep | Databricks Admin Training</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%); min-height: 100vh; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; color: #fff; }
+        .slide { display: none; flex-direction: column; padding: 60px 80px; height: 100%; }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 2.8em; font-weight: 700; margin-bottom: 40px; background: linear-gradient(135deg, #FF3621, #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bullet-list { list-style: none; }
+        .bullet-list li { font-size: 1.4em; margin-bottom: 20px; padding-left: 40px; position: relative; }
+        .bullet-list li::before { content: "▸"; color: #FF3621; position: absolute; left: 0; }
+        .bullet-list li.sub-item { font-size: 1.2em; margin-left: 40px; color: #ccc; }
+        .bullet-list li.sub-item::before { content: "◦"; color: #FF6B35; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 30px; }
+        .column-title { font-size: 1.4em; color: #FF6B35; margin-bottom: 20px; }
+        .highlight-box { background: rgba(255, 54, 33, 0.1); border-left: 4px solid #FF3621; padding: 25px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .highlight-box p { font-size: 1.2em; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #FF3621, #FF6B35); }
+        .slide-counter { position: fixed; bottom: 20px; right: 30px; color: #666; }
+        .nav-hint { position: fixed; bottom: 20px; left: 30px; color: #444; font-size: 0.9em; }
+        .title-slide { justify-content: center; align-items: center; text-align: center; }
+        .title-slide .slide-title { font-size: 3.5em; margin-bottom: 20px; }
+        .day-badge { background: linear-gradient(135deg, #FF3621, #FF6B35); color: white; padding: 10px 30px; border-radius: 25px; margin-bottom: 30px; }
+        .level-badge { background: #28a745; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; }
+        .level-badge-intermediate { background: #ffc107; color: #000; }
+        .level-badge-advanced { background: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #333; }
+        th { background: rgba(255, 54, 33, 0.2); color: #FF6B35; }
+        .three-column { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; border: 1px solid #333; }
+        .info-card h4 { color: #FF6B35; margin-bottom: 15px; }
+        .info-card ul { list-style: none; }
+        .info-card li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.95em; }
+        .info-card li:last-child { border-bottom: none; }
+        .success-box { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box p { font-size: 1.1em; color: #28a745; }
+        .celebration { font-size: 3em; text-align: center; margin: 30px 0; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <div class="day-badge">Day 20 of 20 - FINAL DAY!</div>
+            <h1 class="slide-title">Capstone Project & Certification Prep</h1>
+            <p style="font-size: 1.5em; color: #888;">Databricks Platform Administration Training</p>
+            <p style="margin-top: 20px;">
+                <span class="level-badge">Beginner</span>
+                <span class="level-badge level-badge-intermediate">Intermediate</span>
+                <span class="level-badge level-badge-advanced">Advanced</span>
+            </p>
+            <p style="margin-top: 40px; color: #666;">Duration: 2 Hours</p>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h1 class="slide-title">Today's Agenda</h1>
+            <ul class="bullet-list">
+                <li>Capstone Overview & Setup (15 min)</li>
+                <li>Capstone Project Work (60 min)</li>
+                <li class="sub-item">Break (15 min)</li>
+                <li>Certification Exam Overview (15 min)</li>
+                <li>Course Wrap-up & Next Steps (15 min)</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 30px;">
+                <p><strong>Goal:</strong> Apply your knowledge to design an enterprise Databricks environment and prepare for certification.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Capstone Introduction -->
+        <div class="slide">
+            <h1 class="slide-title">Capstone Project: TechFlow Industries</h1>
+            <div class="highlight-box">
+                <p>Design and document a complete Databricks environment for <strong>TechFlow Industries</strong>, a mid-sized technology company migrating to a data lakehouse architecture.</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Attribute</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td>Employees</td>
+                    <td>500 total, 75 Databricks users</td>
+                </tr>
+                <tr>
+                    <td>Teams</td>
+                    <td>Data Engineering, Data Science, Analytics, Finance</td>
+                </tr>
+                <tr>
+                    <td>Data Volume</td>
+                    <td>50 TB, growing 5 TB/month</td>
+                </tr>
+                <tr>
+                    <td>Compliance</td>
+                    <td>SOC 2 Type II, GDPR</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 4: Difficulty Tracks -->
+        <div class="slide">
+            <h1 class="slide-title">Choose Your Track</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4 style="color: #28a745;">Beginner Track</h4>
+                    <ul>
+                        <li>Unity Catalog structure</li>
+                        <li>Basic group design</li>
+                        <li>Simple permissions</li>
+                        <li>One cluster policy</li>
+                        <li><strong>~30 min</strong></li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4 style="color: #ffc107;">Intermediate Track</h4>
+                    <ul>
+                        <li>+ Permission matrix</li>
+                        <li>+ Multiple cluster policies</li>
+                        <li>+ Job workflow design</li>
+                        <li>+ SQL warehouse config</li>
+                        <li><strong>~45 min</strong></li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4 style="color: #dc3545;">Advanced Track</h4>
+                    <ul>
+                        <li>+ Full security design</li>
+                        <li>+ Compliance controls</li>
+                        <li>+ Cost governance</li>
+                        <li>+ Monitoring dashboard</li>
+                        <li><strong>~60 min</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Beginner Track Details -->
+        <div class="slide">
+            <h1 class="slide-title">Beginner Track Requirements</h1>
+            <ul class="bullet-list">
+                <li><strong>Part 1:</strong> Design Unity Catalog hierarchy
+                    <li class="sub-item">Environment separation (dev/staging/prod)</li>
+                    <li class="sub-item">Domain-based organization</li>
+                </li>
+                <li><strong>Part 2:</strong> Create group structure
+                    <li class="sub-item">Team-based groups</li>
+                    <li class="sub-item">Role assignments</li>
+                </li>
+                <li><strong>Part 3:</strong> Basic permission grants
+                    <li class="sub-item">Catalog-level permissions</li>
+                    <li class="sub-item">Schema access</li>
+                </li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Deliverable:</strong> Catalog diagram + Group list + SQL GRANT statements</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Intermediate Track Details -->
+        <div class="slide">
+            <h1 class="slide-title">Intermediate Track Requirements</h1>
+            <ul class="bullet-list">
+                <li><strong>All Beginner requirements PLUS:</strong></li>
+                <li><strong>Part 4:</strong> Permission matrix (groups × catalogs)</li>
+                <li><strong>Part 5:</strong> Cluster policies
+                    <li class="sub-item">Development policy</li>
+                    <li class="sub-item">Production policy</li>
+                </li>
+                <li><strong>Part 6:</strong> ETL workflow design</li>
+                <li><strong>Part 7:</strong> SQL warehouse configuration</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Deliverable:</strong> Permission matrix + 2 cluster policy JSONs + Workflow diagram</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Advanced Track Details -->
+        <div class="slide">
+            <h1 class="slide-title">Advanced Track Requirements</h1>
+            <ul class="bullet-list">
+                <li><strong>All Intermediate requirements PLUS:</strong></li>
+                <li><strong>Part 8:</strong> Security configuration
+                    <li class="sub-item">Network security design</li>
+                    <li class="sub-item">Data encryption strategy</li>
+                </li>
+                <li><strong>Part 9:</strong> Compliance controls (SOC 2, GDPR)</li>
+                <li><strong>Part 10:</strong> Cost monitoring queries & dashboard</li>
+                <li><strong>Part 11:</strong> Administrator runbook outline</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>Deliverable:</strong> Full enterprise architecture document</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Evaluation Criteria -->
+        <div class="slide">
+            <h1 class="slide-title">Evaluation Criteria</h1>
+            <table>
+                <tr>
+                    <th>Criteria</th>
+                    <th>Points</th>
+                    <th>Key Focus</th>
+                </tr>
+                <tr>
+                    <td>Unity Catalog Design</td>
+                    <td>15</td>
+                    <td>Logical structure, naming conventions</td>
+                </tr>
+                <tr>
+                    <td>Access Control</td>
+                    <td>15</td>
+                    <td>Least privilege, group-based</td>
+                </tr>
+                <tr>
+                    <td>Compute Governance</td>
+                    <td>15</td>
+                    <td>Cost control, appropriate constraints</td>
+                </tr>
+                <tr>
+                    <td>Job Design</td>
+                    <td>10</td>
+                    <td>Dependencies, error handling</td>
+                </tr>
+                <tr>
+                    <td>Security & Documentation</td>
+                    <td>35</td>
+                    <td>Defense in depth, clarity</td>
+                </tr>
+                <tr>
+                    <td>Best Practices</td>
+                    <td>10</td>
+                    <td>Industry standards followed</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 9: Work Time -->
+        <div class="slide title-slide">
+            <h1 class="slide-title">Capstone Work Time</h1>
+            <p style="font-size: 2em; color: #FF6B35;">60 Minutes</p>
+            <p style="font-size: 1.2em; color: #888; margin-top: 20px;">Choose your track and begin designing!</p>
+            <p style="margin-top: 40px; color: #666;">Raise your hand if you have questions.</p>
+        </div>
+
+        <!-- Slide 10: Certification Overview -->
+        <div class="slide">
+            <h1 class="slide-title">Databricks Certification Overview</h1>
+            <div class="highlight-box">
+                <p><strong>Databricks Certified Associate Platform Administrator</strong></p>
+            </div>
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>Attribute</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td>Questions</td>
+                    <td>45 multiple-choice</td>
+                </tr>
+                <tr>
+                    <td>Duration</td>
+                    <td>90 minutes</td>
+                </tr>
+                <tr>
+                    <td>Passing Score</td>
+                    <td>70% (32 correct)</td>
+                </tr>
+                <tr>
+                    <td>Validity</td>
+                    <td>2 years</td>
+                </tr>
+                <tr>
+                    <td>Format</td>
+                    <td>Online proctored</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 11: Exam Domains -->
+        <div class="slide">
+            <h1 class="slide-title">Certification Exam Domains</h1>
+            <table>
+                <tr>
+                    <th>Domain</th>
+                    <th>Weight</th>
+                    <th>Training Coverage</th>
+                </tr>
+                <tr>
+                    <td>Lakehouse Platform</td>
+                    <td>~15%</td>
+                    <td>Days 1-2, 9</td>
+                </tr>
+                <tr>
+                    <td>Workspace Administration</td>
+                    <td>~20%</td>
+                    <td>Days 3-5</td>
+                </tr>
+                <tr>
+                    <td>Identity & Access Management</td>
+                    <td>~20%</td>
+                    <td>Days 6-7, 13</td>
+                </tr>
+                <tr>
+                    <td>Unity Catalog</td>
+                    <td>~15%</td>
+                    <td>Days 10-12</td>
+                </tr>
+                <tr>
+                    <td>Compute Management</td>
+                    <td>~15%</td>
+                    <td>Days 8, 14-15</td>
+                </tr>
+                <tr>
+                    <td>Security & Monitoring</td>
+                    <td>~15%</td>
+                    <td>Days 17-19</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 12: Exam Tips -->
+        <div class="slide">
+            <h1 class="slide-title">Certification Exam Tips</h1>
+            <ul class="bullet-list">
+                <li>Review <strong>all labs</strong> - hands-on knowledge is tested</li>
+                <li>Know <strong>Unity Catalog hierarchy</strong> deeply</li>
+                <li>Understand <strong>permission model</strong> (GRANT/REVOKE)</li>
+                <li>Memorize <strong>cluster policy attributes</strong></li>
+                <li>Know difference between <strong>account vs workspace</strong> admin</li>
+                <li>Understand <strong>job vs all-purpose clusters</strong></li>
+                <li>Review <strong>practice exam</strong> (in materials)</li>
+            </ul>
+            <div class="success-box" style="margin-top: 20px;">
+                <p>✓ Use the practice exam to identify weak areas before the real exam!</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: What's Next -->
+        <div class="slide">
+            <h1 class="slide-title">What's Next?</h1>
+            <div class="two-column">
+                <div>
+                    <div class="column-title">Immediate Actions</div>
+                    <ul class="bullet-list">
+                        <li>Complete practice exam</li>
+                        <li>Review weak areas</li>
+                        <li>Schedule certification</li>
+                        <li>Join Databricks community</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="column-title">Continued Learning</div>
+                    <ul class="bullet-list">
+                        <li>Databricks Academy</li>
+                        <li>Documentation deep-dives</li>
+                        <li>Partner Hands-on Labs</li>
+                        <li>Advanced certifications</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Resources -->
+        <div class="slide">
+            <h1 class="slide-title">Resources Provided</h1>
+            <div class="three-column">
+                <div class="info-card">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li>All slide decks</li>
+                        <li>Lab manuals</li>
+                        <li>Quick reference guide</li>
+                        <li>Capstone solutions</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Assessments</h4>
+                    <ul>
+                        <li>Daily quizzes (answers)</li>
+                        <li>Practice exam</li>
+                        <li>Answer explanations</li>
+                        <li>Study guide</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Support</h4>
+                    <ul>
+                        <li>Trainer contact info</li>
+                        <li>Databricks documentation</li>
+                        <li>Community forums</li>
+                        <li>Support tickets</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Congratulations -->
+        <div class="slide title-slide">
+            <div class="celebration">🎉</div>
+            <h1 class="slide-title">Congratulations!</h1>
+            <p style="font-size: 1.5em; color: #888;">You've completed the Databricks Platform Administration Training!</p>
+            <p style="margin-top: 30px; font-size: 1.2em; color: #FF6B35;">40 Hours | 20 Days | 12 Labs | 1 Capstone</p>
+            <div class="success-box" style="margin-top: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p>Good luck on your certification exam! You're ready!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="nav-hint">← → Navigate | N: Notes | Home/End: First/Last</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        const total = slides.length;
+
+        function showSlide(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+            document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+            if (e.key === 'ArrowLeft') showSlide(current - 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(total - 1);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) showSlide(current + 1);
+            else showSlide(current - 1);
+        });
+    </script>
+</body>
+</html>
